@@ -179,8 +179,7 @@ describe("AksesPage — render by akses context (#6 / T6)", () => {
       screen.getByRole("button", { name: /Tambah PTK/i })
     ).toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: /Hapus/i })).toHaveLength(1);
-    // 5 izin + 5 pembatasan
-    expect(screen.getAllByRole("checkbox")).toHaveLength(10);
+    expect(screen.getAllByRole("checkbox")).toHaveLength(16);
     expect(mocks.listPtk).toHaveBeenCalledTimes(1);
     expect(mocks.loadAksesPengguna).toHaveBeenCalledTimes(1);
   });
