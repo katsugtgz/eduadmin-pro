@@ -39,14 +39,15 @@ export function DaftarPerubahanTertunda() {
   useEffect(() => {
     refresh();
     const updateOnline = () => setOnline(navigator.onLine);
-    updateOnline();
-    window.addEventListener("online", () => {
+    const handleOnline = () => {
       updateOnline();
       refresh();
-    });
+    };
+    updateOnline();
+    window.addEventListener("online", handleOnline);
     window.addEventListener("offline", updateOnline);
     return () => {
-      window.removeEventListener("online", updateOnline);
+      window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", updateOnline);
     };
   }, [refresh]);
