@@ -1,0 +1,19 @@
+src/components/offline/daftar-perubahan-tertunda.tsx
+  s_fa797637cea48b::t_9e28871b3cef6a 42,45-47,50
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "842afc8cb8409783b197f07ac6463cee9f9a4c55",
+  "prompts": {},
+  "sessions": {
+    "s_fa797637cea48b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_066cf30d0ffeTpZamdn0olvbok",
+        "model": "glm-5.2"
+      },
+      "human_author": "Muhammad Naufal Mahdi <053792227@ecampus.ut.ac.id>"
+    }
+  }
+}
