@@ -14,10 +14,10 @@ terms agreed). Per the plan rule "If AI (T13) remains mock/deferred, RAG/help
 build must defer," ADR 0003's `Deferred` status propagates here: **as long as the
 only generation path is `jalankanMockAi`, no RAG/help build may start.**
 
-The curriculum-seeding item (postmvp.md #16, "Deterministic AI-assisted
-curriculum seeding") is **separately gated** — see "Curriculum seeding" below.
-Advanced analytics / ML / prediction (postmvp.md #24-class, T21 backlog #24
-"Analitik lanjutan") are **explicitly excluded** from this slice — see
+The curriculum-seeding item ("Deterministic AI-assisted curriculum seeding",
+`docs/POST-MVP.md`) is **separately gated** — see "Curriculum seeding" below.
+Advanced analytics / ML / prediction ("Analitik lanjutan",
+`docs/POST-MVP.md`) are **explicitly excluded** from this slice — see
 "Excluded from this slice."
 
 ## Date
@@ -67,7 +67,7 @@ This is in-scope for this ADR's "if accepted" slice but is **not** done today.
 
 ### Source-app RAG/help features (porting pressure)
 
-The source application being ported from (`scrape/pages/`) exposes help/RAG-
+The source application being ported from exposes help/RAG-
 adjacent surfaces. These are recorded as **porting pressure**, not as a spec:
 the source app's patterns do not bind this product, and ADR 0003's rejection of
 the source BYO-Gemini model (Option D) applies here too. Any "port the source
@@ -135,9 +135,8 @@ the build is bounded as follows. **This is a specification, not an authorization
 to build.** T25 owns the build; T25 may not start until this ADR is Accepted.
 
 - **Corpus: local, curated, PII-free.** The retrievable corpus is limited to:
-  - `CONTEXT.md` (domain glossary),
+  - `docs/domain-glossary.md` (domain glossary),
   - `docs/architecture/` (identity-and-access, etc.),
-  - `docs/vendor/workos/` (vendored WorkOS docs),
   - the static help content already authored (`src/app/**/bantuan/`,
     `src/app/panduan/`, the `FAQ` arrays, the `teks` strings at
     `bantuan-kontekstual` call sites).
@@ -164,12 +163,12 @@ to build.** T25 owns the build; T25 may not start until this ADR is Accepted.
 
 ### Curriculum seeding — separately gated (T26)
 
-The "Deterministic AI-assisted curriculum seeding" item (postmvp.md #16) is
-**not** covered by this ADR's acceptance. It is separately gated because:
+The "Deterministic AI-assisted curriculum seeding" item (`docs/POST-MVP.md`)
+is **not** covered by this ADR's acceptance. It is separately gated because:
 
 - it operates on **curriculum source snapshots** (a different corpus than help
   docs), with its own repeatable-prompt / parser / golden-diff / human-approval
-  regime (per postmvp.md L33);
+  regime (per `docs/POST-MVP.md`);
 - it writes to the **global reference tables** (ADR 0001), which are
   migration-authored and `GRANT SELECT ONLY` — the seeding pipeline needs a
   write path that does not exist today;
@@ -301,15 +300,11 @@ ADR). **Rejected for this slice.** Curriculum seeding is separately gated
   `Deferred` status (T13) propagates to this ADR. Its controls (mock-only
   generation, honest labeling, no BYO key, no AI env vars, verification gate,
   provenance) govern the generation half of any future RAG surface.
-- `postmvp.md` lines 33–35 — the three AI/RAG items: #16 Deterministic AI-
-  assisted curriculum seeding (separately gated, T26), #17 pgvector RAG over
-  curriculum (deferred, this ADR), #18 Bantuan AI / RAG-based product help
-  (deferred, this ADR).
-- `docs/roadmap/post-mvp-backlog.md` (T21) — §3 items #16, #17, #18, #24;
-  §4 Wave-5 ranking (T23 blocked on ADR 0003); §5 ADR grouping. T21 projected
-  [0008] for "AI provenance & retrieval safety"; this ADR takes **0006** and
-  scopes to RAG/help only (curriculum seeding → T26, analytics/ML → excluded),
-  narrowing the T21 projection. The re-numbering reflects actual drafting order.
+- `docs/POST-MVP.md` — the three post-MVP AI/RAG items: deterministic AI-
+  assisted curriculum seeding (separately gated), pgvector RAG over
+  curriculum (deferred, this ADR), and Bantuan AI / RAG-based product help
+  (deferred, this ADR). All are ADR-gated; this ADR scopes to RAG/help only
+  (curriculum seeding and analytics/ML are excluded).
 - `src/components/bantuan-kontekstual.tsx` — the static inline help tooltip
   (hardcoded `teks` prop, no retrieval). Representative of today's help surface.
 - `src/app/dashboard/bantuan/page.tsx` — the static FAQ page (`const FAQ` array,
@@ -328,10 +323,6 @@ ADR). **Rejected for this slice.** Curriculum seeding is separately gated
   data-posture decisions; the "no PII indexing" rule in this ADR's slice keeps
   the RAG surface on the safe side of ADR 0002 by never letting PII enter the
   retrieval index.
-- `.omo/evidence/task-23-rag-dependency.log` — existing evidence log with the
-  grep assertion that this ADR's `Depends on` references ADR 0003 / T13.
-- `.omo/evidence/task-23-analytics-excluded.log` — existing evidence log with
-  the grep assertion that advanced analytics / ML / prediction are marked
-  deferred / ADR-required in this ADR.
-- `.omo/notepads/post-mvp-roadmap-hyperplan/learnings.md` — T5, T13, T20, T21
-  entries (the dependency chain this ADR formalizes).
+- The `Depends on` chain above (ADR 0003) — verified manually; advanced
+  analytics / ML / prediction remain marked deferred / ADR-required in this
+  ADR.

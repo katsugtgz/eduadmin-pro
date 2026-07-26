@@ -10,7 +10,7 @@ authorized by this ADR. Wave 4 Task 24 (T24) **will skip** until the owner
 explicitly flips this ADR to **Accepted** AND a thin vertical slice is scoped.
 
 The deferral is the safe default mandated by the post-MVP backlog
-(`docs/roadmap/post-mvp-backlog.md` §3, items #7–#11): every consent-family
+(see `docs/POST-MVP.md`): every consent-family
 item carries `Owner: legal-owner + product-owner`, `Default-if-silent: defer`,
 `ADR-required: Y`. No owner signal has been recorded as of 2026-06-27.
 
@@ -45,7 +45,7 @@ The MVP ships **in-app notifications only**. Two tables in
 authenticated teachers/staff who hold a `Keanggotaan Satuan Pendidikan`.
 `Wali Peserta Didik` (parents/guardians) are **not** `Pengguna` in the MVP
 (`src/db/schema.ts` lines 342–344: *"NOT Pengguna logins — a wali cannot sign
-in"*; `CONTEXT.md` line 397). There is no notification path — in-app or
+in"*; see also `docs/domain-glossary.md`, Wali Peserta Didik). There is no notification path — in-app or
 external — that reaches a parent today.
 
 ### Parent contact data at rest (the regulated surface)
@@ -58,7 +58,7 @@ The PII inventory from ADR 0002 (`docs/adr/0002-pii-at-rest-strategy.md`
   not logins. They cascade on `peserta_didik` delete.
 - **`kontak_darurat`** (`schema.ts` lines 368–383): `nama`, `hubungan`,
   `telepon`. Explicitly *"does not replace Wali Peserta Didik responsibility
-  or create a routine messaging channel"* (`CONTEXT.md` line 398).
+  or create a routine messaging channel"* (schema docstring).
 
 Combined with `peserta_didik` (student: `nama`, `nisn`, `nis`, `tanggal_lahir`,
 `jenis_kelamin`), the join `peserta_didik ↔ wali_peserta_didik` is the
@@ -94,20 +94,20 @@ consent decision beyond a generic "send an email" feature:
    parent/guardian. Withdrawal must be as easy as grant.
 3. **Anak (Pasal 5 ayat 2, Pasal 16 ayat 3)** — children's personal data is a
    heightened category. The join `peserta_didik ↔ wali_peserta_didik` is a
-   minor's data path; external comms over it is Critical-risk (per
-   `post-mvp-backlog.md` §3, items #7, #8, #10 all marked `Risk: Critical`).
+   minor's data path; external comms over it is Critical-risk (every
+   external-channel item in the post-MVP backlog is marked `Risk: Critical`).
 
 The MVP's `preferensi_notifikasi` toggle is a **self-service in-app preference
 for an authenticated Pengguna's own inbox**. It is **not** a UU PDP consent
 record: it does not record Pemberitahuan delivery, it does not name a data
 purpose or recipient, it cannot be exercised by a non-Pengguna (a Wali), and
-`CONTEXT.md` line 345 explicitly lists *"Consent-free external messages"*
-among its `_Avoid_` values. Reusing it as a parent-consent store would
+the domain model explicitly lists *"Consent-free external messages"*
+among the values to avoid. Reusing it as a parent-consent store would
 collapse two distinct legal constructs.
 
 ### Post-MVP backlog items this ADR governs
 
-From `docs/roadmap/post-mvp-backlog.md` §3 (the T21 ADR-gated backlog), this
+From the ADR-gated post-MVP backlog, this
 ADR is the projected home of the external-channel consent family:
 
 | # | Item | Owner | Risk | ADR-required |
@@ -163,8 +163,8 @@ on. They must stay green:
 1. **In-app notifications only.** No code path sends to `wali_peserta_didik`
    or `kontak_darurat` contact fields. The `notifikasi` table is
    recipient-scoped to `Pengguna.id`; no foreign key reaches a Wali.
-2. **`preferensi_notifikasi` is not a consent store.** Its docstring and
-   `CONTEXT.md` line 345 forbid repurposing it for external consent. Any
+2. **`preferensi_notifikasi` is not a consent store.** Its docstring forbids
+   repurposing it for external consent. Any
    future consent record is a separate table.
 3. **Contact fields are read-only display/import columns.** `telepon`/`email`
    on `wali_peserta_didik` are surfaced for admin viewing and Dapodik import
@@ -201,9 +201,8 @@ required — when any of these becomes true:
 **WhatsApp (items #7, #8) is `deferred / ADR-required`, NOT `build-now`.**
 
 Even if this ADR were flipped to Accepted for the email/consent-record
-foundation, the WhatsApp channel stays deferred. The reasons, all from the
-hyperplan record (`hyperplan/round-2-quality-maximalist.md`,
-`hyperplan/round-2-arch-logician.md`, `hyperplan/insights-bundle.md` §66–69):
+foundation, the WhatsApp channel stays deferred. The reasons, all from
+earlier design reviews:
 
 - WhatsApp is an **uncontrolled third-party channel**. Every send is a UU PDP
   disclosure to N recipients with no in-band consent log, no revocation, and
@@ -211,9 +210,9 @@ hyperplan record (`hyperplan/round-2-quality-maximalist.md`,
   swapped SIM, or belong to an abusive co-parent — the controller cannot
   verify the recipient identity at send time.
 - The "WhatsApp Audit Pack" (branded weekly cards of attendance/prestasi) is a
-  **PII broadcast** of a minor's identity to a group chat. The round-2
-  quality-maximalist review called this *"PII broadcast with marketing sugar"*
-  and it is explicitly consent-gated in `insights-bundle.md` line 69.
+  **PII broadcast** of a minor's identity to a group chat. An earlier design
+  review called this *"PII broadcast with marketing sugar"*
+  and gated it explicitly on consent.
 - A WhatsApp send path requires: recipient identity verification, a consent
   registry per-purpose, a withdrawal path that actually suppresses sends, an
   audit trail of every send (with content hash, not content, retained), and a
@@ -282,7 +281,7 @@ The answer is a thin vertical slice covering the four required elements, with
 
 **Negative.**
 
-- Parent-facing communication — which the hyperplan round-3 wildcard-visionary
+- Parent-facing communication — which an earlier product
   review identified as a real retention driver ("attendance uncertainty and
   raport opacity are daily trust failures") — remains unavailable. Schools
   that want it today will do uncontrolled manual WA forwards, which is worse
@@ -294,7 +293,7 @@ The answer is a thin vertical slice covering the four required elements, with
   into a migration.
 - A naive future reviewer may see `preferensi_notifikasi` and `wali_peserta_didik`
   in the same schema and assume a parent-notification path exists. This ADR
-  and `CONTEXT.md` line 439 are the response: external channels require
+  is the response: external channels require
   explicit future consent and audit decisions, which are deferred here.
 
 **Mitigation for the deferral.**
@@ -337,8 +336,8 @@ owner's future acceptance decision. The trigger conditions + slice spec turn
 
 **Option D — Repurpose `preferensi_notifikasi` as the consent store.**
 Rejected outright. It is `Pengguna`-scoped (a Wali is not a `Pengguna`),
-self-service for an authenticated inbox, and explicitly barred by
-`CONTEXT.md` line 345 from being a consent/audit substitute. Overloading it
+self-service for an authenticated inbox, and explicitly barred by the
+domain model from being a consent/audit substitute. Overloading it
 would collapse Pemberitahuan/Persetujuan into an in-app preference toggle and
 violate UU PDP Pasal 20's withdrawal standard.
 
@@ -374,9 +373,9 @@ Deferred.
 
 ## References
 
-- `docs/roadmap/post-mvp-backlog.md` — T21 ADR-gated backlog §3 (items #7–#11),
-  §5 (projected ADR [0005] External channel consent regime), §6 (risk-gate
-  call-outs for parent portal, WhatsApp/external comms).
+- `docs/POST-MVP.md` — the ADR-gated backlog: projected external-channel
+  consent regime; risk-gate call-outs for parent portal and WhatsApp/external
+  comms.
 - `docs/adr/0002-pii-at-rest-strategy.md` — PII inventory
   (`wali_peserta_didik`, `kontak_darurat`, `peserta_didik`); Deferred status
   is a precondition for any external send of the regulated join.
@@ -386,20 +385,9 @@ Deferred.
   73–86 (`catatan_audit`), 1196–1267 (`notifikasi`,
   `preferensi_notifikasi`).
 - `src/app/dashboard/notifikasi/page.tsx` lines 36–38 — MVP AC#5: in-app ONLY.
-- `CONTEXT.md` lines 91–101 (Wali Peserta Didik, Kontak Darurat, Wali Kelas),
-  337 (Notifikasi `_Avoid_: external reminder without consent`), 345
-  (Preferensi Notifikasi `_Avoid_: consent-free external messages`), 397–400,
-  438–439, 479 (resolved boundary: external channels require explicit future
-  consent + audit decisions).
-- `hyperplan/round-2-quality-maximalist.md`, `hyperplan/round-2-arch-logician.md`,
-  `hyperplan/insights-bundle.md` §66–69 — WhatsApp-as-PII-broadcast analysis;
-  consent-gated aggregate-only resolution.
-- `hyperplan/plan.md` §A8 (line 369–370) — Parent WhatsApp channel / WhatsApp
-  Audit Pack deferred to post-MVP, consent-gated aggregate only.
-- `.omo/evidence/reconciliation/postmvp-canonical.md` — T5 canonical: items
-  #7–#11, ADR grouping, Q31 boundary framework.
-- `.omo/evidence/release/mvp-ship-gates.md` — T20 §7: ADR 0002 Accepted is a
-  hard production go-live gate.
+- `docs/domain-glossary.md` — Wali Peserta Didik, Kontak Darurat, Wali Kelas,
+  and Notifikasi entries; the domain boundary that external channels require
+  explicit future consent + audit decisions.
 - Undang-Undang Republik Indonesia Nomor 27 Tahun 2022 tentang Pelindungan
   Data Pribadi (UU PDP), Pasal 3–5 (Pemberitahuan), 13–17 (hak & kewajiban),
   20–22 (Persetujuan), 28 (hak subjek), 5 ayat 2 & 16 ayat 3 (data anak).

@@ -70,8 +70,7 @@ keyword alone:
 - **Env / secrets.** `.env`, `.env.local`, `.env.example` contain **zero**
   AI-provider key names (`AI_*`, `GEMINI_*`, `OPENAI_*`, `ANTHROPIC_*`,
   `GOOGLE_AI_*`, `LLM_*`, etc.). A scan of `src/` for `NEXT_PUBLIC_AI*` and
-  client-component references to any AI key returned **zero matches**. Transcript
-  in `.omo/evidence/task-13-ai-secrets.log`.
+  client-component references to any AI key returned **zero matches**.
 - **No `src/lib/ai` or `src/lib/llm`** exists. The mock is a single function
   inside `actions.ts`; there is no client wrapper to accidentally expose.
 
@@ -81,8 +80,8 @@ is a placeholder**.
 
 ### Source-app BYO-Gemini pattern (rejected)
 
-The source application being ported from (`scrape/pages/27-bank_soal_ai.json`)
-exposes a "Bank Soal AI (Super Cepat)" surface with a "Generate Cepat (1-Klik)"
+The source application being ported from exposes a
+"Bank Soal AI (Super Cepat)" surface with a "Generate Cepat (1-Klik)"
 action, built on a **bring-your-own (BYO) Gemini key** model: the
 school/teacher supplies their own Google Gemini API key, and the client (or a
 thin proxy) calls Google directly.
@@ -164,8 +163,7 @@ already under regression. What is deferred is *only* the substitution of
    provider key. This rejects the source-app pattern outright (see Context).
 4. **No AI env vars, no client exposure.** `.env*` must contain zero AI key
    names; `src/` must contain zero `NEXT_PUBLIC_*AI*` references and zero
-   AI-key reads inside `'use client'` modules. Verified clean at
-   `.omo/evidence/task-13-ai-secrets.log`.
+   AI-key reads inside `'use client'` modules. Verified clean by manual scan.
 5. **Verification gate stays authoritative.** Even in mock mode, a `draf_ai`
    row is inert until `verifikasiDrafAi` sets `status_verifikasi = disetujui`.
    Downstream FKs (`eraport`, `butir_penilaian`, `perangkat_ajar`) may only
@@ -295,9 +293,7 @@ deferred alongside the real-provider decision.
   verification gate load-bearing.
 - `src/components/permintaan-ai/` — the four presentational components; the
   draft card's raw-`provenance` rendering is the honest-labeling control.
-- `scrape/pages/27-bank_soal_ai.json` — the source-app BYO-Gemini "Bank Soal AI
-  (Super Cepat)" / "Generate Cepat (1-Klik)" pattern rejected under Option D.
-- `postmvp.md` — canonical post-MVP AI items: deterministic AI-assisted
+- `docs/POST-MVP.md` — canonical post-MVP AI items: deterministic AI-assisted
   curriculum seeding, pgvector RAG over curriculum, Bantuan AI / RAG-based
   product help. All `ADR first`; this ADR is the MVP-side gate they inherit.
 - `docs/adr/0002-pii-at-rest-strategy.md` — parallel reasoning on owner-owned
@@ -306,10 +302,6 @@ deferred alongside the real-provider decision.
 - `docs/adr/0001-global-reference-tables.md` — ADR house style and the tenant-
   isolation invariant (`app.tenant_id` GUC, never client-supplied) that every
   AI query runs under via `withTenant`.
-- `.omo/evidence/task-13-ai-mode.log` — AI surface inventory + mode
-  determination transcript.
-- `.omo/evidence/task-13-ai-secrets.log` — AI key / `NEXT_PUBLIC_*AI*` /
-  client-component secret scan transcript (clean).
 - Undang-Undang Republik Indonesia Nomor 27 Tahun 2022 tentang Pelindungan
   Data Pribadi (UU PDP), Pasal 5, 16 — children's personal data as a regulated
   category; the basis for rejecting uncontrolled transfer to an LLM provider.

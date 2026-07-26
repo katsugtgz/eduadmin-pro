@@ -17,7 +17,7 @@ EduAdmin Pro Premium enforces tenant isolation through Row-Level Security (RLS) 
 - a policy of `using (tenant_id = current_setting('app.tenant_id', true))` paired with the same `WITH CHECK`, which rejects any row whose tenant does not match the active membership;
 - `GRANT SELECT, INSERT, UPDATE, DELETE` to the non-superuser `app_user` role.
 
-Issue #9 introduces Kurikulum reference data: the Kurikulum Merdeka national curriculum, modeled as `kurikulum`, `mata_pelajaran`, `fase`, `capaian_pembelajaran`, `tujuan_pembelajaran`, and `alur_tujuan_pembelajaran`. Per `CONTEXT.md`, a **Kurikulum** is "the official learning framework used by a Satuan Pendidikan," and **Capaian Pembelajaran**, **Tujuan Pembelajaran**, and **Alur Tujuan Pembelajaran** are its official, derived learning statements. This data is national and universal. It is identical for every Satuan Pendidikan, defined by the Indonesian Ministry of Education, and no single school owns or authors it.
+Issue #9 introduces Kurikulum reference data: the Kurikulum Merdeka national curriculum, modeled as `kurikulum`, `mata_pelajaran`, `fase`, `capaian_pembelajaran`, `tujuan_pembelajaran`, and `alur_tujuan_pembelajaran`. Per `docs/domain-glossary.md`, a **Kurikulum** is "the official learning framework used by a Satuan Pendidikan," and **Capaian Pembelajaran**, **Tujuan Pembelajaran**, and **Alur Tujuan Pembelajaran** are its official, derived learning statements. This data is national and universal. It is identical for every Satuan Pendidikan, defined by the Indonesian Ministry of Education, and no single school owns or authors it.
 
 Applying the tenant-scoping pattern to this data would be wrong on two counts:
 
@@ -66,6 +66,6 @@ Future global reference tables may be added under this ADR only if they meet the
 ## References
 
 - `docs/architecture/identity-and-access.md`, section 13 (RLS ship-blocker rule) and section 2 (tenant-scoped table pattern).
-- `CONTEXT.md`, entries for Kurikulum, Capaian Pembelajaran, Tujuan Pembelajaran, Alur Tujuan Pembelajaran, Mata Pelajaran, and Fase.
+- `docs/domain-glossary.md`, entries for Kurikulum, Capaian Pembelajaran, Tujuan Pembelajaran, Alur Tujuan Pembelajaran, Mata Pelajaran, and Fase.
 - `src/db/migrations/0000_tenant_spine.sql` (the RLS pattern this ADR exempts).
 - Issue #9 (Kurikulum CP/TP/ATP seed browser).

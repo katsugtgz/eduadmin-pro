@@ -259,7 +259,7 @@ doc §4). It is:
 - **NOT** a `tenant_role`.
 
 A concrete oversight/purchasing/cross-school-reporting requirement — backed by
-an entry in `hyperplan/` or `CONTEXT.md` AND explicit owner approval — is the
+a documented domain requirement AND explicit owner approval — is the
 gate to open a follow-up ADR. That ADR must decide, at minimum:
 
 - Whether Instansi Pengelola is a WorkOS org-of-orgs, a separate `Organization`
@@ -342,8 +342,8 @@ requirement + owner approval (see Decision 3 triggers).
 
 ### D. Model Instansi Pengelola now as a WorkOS org-of-orgs
 
-**Rejected.** No concrete oversight/reporting requirement is backed by
-`hyperplan/` or `CONTEXT.md`. Premature modeling would either weaken the
+**Rejected.** No concrete oversight/reporting requirement exists in the
+documented domain model. Premature modeling would either weaken the
 single-`tenant_id` RLS invariant or create a dead schema. Deferred to the
 post-MVP ADR gate (Decision 4).
 
@@ -373,8 +373,8 @@ must surface its paid/enterprise status before implementation.
 - `src/app/auth/actions.ts:13-15` — `signOutAction` / AuthKit `signOut()`.
 - `src/db/schema.ts:147`, `src/db/migrations/0001_akses_ptk.sql:36` —
   `peran_akses` (no CHECK; defense-in-depth gap).
-- T7 learnings (`.omo/notepads/post-mvp-roadmap-hyperplan/learnings.md`) —
-  three-layer never-superuser invariant, `peran_akses` CHECK gap.
+- Earlier review findings — three-layer never-superuser invariant,
+  `peran_akses` CHECK gap.
 - T10 (`docs/adr/0002-pii-at-rest-strategy.md`), T13
   (`docs/adr/0003-mvp-ai-strategy.md`) — ADR house style + Deferred-status
   precedent.

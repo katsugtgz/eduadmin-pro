@@ -69,7 +69,7 @@ This table is the usage contract, not the raw color source of truth.
 
 - Headings use `.font-display`; operational body copy uses the sans stack.
 - Data-heavy numbers use tabular figures from the global base.
-- UI language is Bahasa Indonesia and domain terms follow `CONTEXT.md`.
+- UI language is Bahasa Indonesia and domain terms follow `docs/domain-glossary.md`.
 
 ## 4. Spacing & Layout
 

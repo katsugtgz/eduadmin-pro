@@ -15,8 +15,7 @@ ADR before the first production tenant that carries real student data.
 
 EduAdmin Pro Premium stores **personally identifiable information of minors**
 and their guardians. The PII inventory in `src/db/schema.ts` (42 tables,
-audited 2026-06-27, transcript in `.omo/evidence/task-10-secret-history.log`
-§4) identifies the high-sensitivity columns:
+audited manually on 2026-06-27) identifies the high-sensitivity columns:
 
 - **`peserta_didik`** (students): `nama`, `nisn` (national student ID), `nis`
   (school student ID), `tanggal_lahir`, `jenis_kelamin`.
@@ -53,7 +52,7 @@ enabled across the migrations (for `gen_random_uuid()`), but **no column uses
 default on managed Postgres / Supabase) is assumed but is the owner's
 hosting-procurement decision, not something this codebase controls.
 
-The secret-history scan (`.omo/evidence/task-10-secret-history.log`) confirmed
+A full secret-history scan of the repository confirmed
 that **no secret has ever been committed** to this repository across all
 branches, so the at-rest question is genuinely about column-level crypto, not
 about recovering leaked credentials.
@@ -255,8 +254,6 @@ data is not the place to test the lower bound of the proportionality defence.
 
 ## References
 
-- `.omo/evidence/task-10-secret-history.log` — full redacted secret-history
-  scan transcript (clean) and PII inventory source.
 - `docs/adr/0001-global-reference-tables.md` — the RLS exemption pattern; this
   ADR assumes every tenant-scoped table keeps the ADR 0001 / `0000_tenant_spine.sql`
   isolation pattern.

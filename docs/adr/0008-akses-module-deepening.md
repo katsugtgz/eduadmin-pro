@@ -192,7 +192,7 @@ would see its admins newly blocked.
    izin.
 2. Owner sign-off is required before changing how admin access to
    pengaturan is gated. The Pengaturan surface controls operational
-   defaults (`Pengaturan Satuan Pendidikan` per `CONTEXT.md`); locking
+   defaults (`Pengaturan Satuan Pendidikan` per `docs/domain-glossary.md`); locking
    admins out of it by surprise is a high-blast-radius change.
 3. The deferral is not coupled to the deepening: the new
    `requireAksesAktif(izin)` helper (added by this deepening) does not
