@@ -1,0 +1,59 @@
+docs/adr/0004-workos-role-session-strategy.md
+  s_038d67559c775f::t_b797475be3a6e2 262
+  s_038d67559c775f::t_351b75ddd9b1b0 376-377
+  s_038d67559c775f::t_d4c2cae8e21d52 345-346
+docs/adr/0006-rag-help-strategy.md
+  s_038d67559c775f::t_574845a53f8ea6 166-167
+  s_038d67559c775f::t_89e44671fa1dfa 17-20
+  s_038d67559c775f::t_b84f211849d524 303-307
+  s_038d67559c775f::t_8e31c24ee03129 138
+  s_038d67559c775f::t_339fd209a3ea77 326-328
+  s_038d67559c775f::t_23f807632af8b1 70
+  s_038d67559c775f::t_07eef98a839941 171
+DESIGN.md
+  s_038d67559c775f::t_6ac95f48258f6f 72
+docs/adr/0005-consent-notification-foundation.md
+  s_038d67559c775f::t_2837ce72dabb40 48
+  s_038d67559c775f::t_f3aa843c112308 13
+  s_038d67559c775f::t_228713f2049bd9 61
+  s_038d67559c775f::t_6c5e3fa1fa754b 388-390
+  s_038d67559c775f::t_0f403b468c84e6 376-378
+  s_038d67559c775f::t_23c2f51c7e3235 110
+  s_038d67559c775f::t_105012f9c2e835 104-105
+  s_038d67559c775f::t_314cf55b6deb9a 339-340
+  s_038d67559c775f::t_67719411bd2359 166-167
+  s_038d67559c775f::t_252aa55fe9ce89 213-215
+  s_038d67559c775f::t_27a8a078aac89a 204-205
+  s_038d67559c775f::t_92eeeaccda1134 284
+  s_038d67559c775f::t_1cd56c9f85003e 97-98
+  s_038d67559c775f::t_992b07e2ea2f54 296
+docs/adr/0002-pii-at-rest-strategy.md
+  s_038d67559c775f::t_4681779f2149ab 55
+  s_038d67559c775f::t_44356a8b2a805a 18
+docs/adr/0003-mvp-ai-strategy.md
+  s_038d67559c775f::t_ec108046e17de2 166
+  s_038d67559c775f::t_04306832a14c43 73
+  s_038d67559c775f::t_8d5e717288446a 83-84
+  s_038d67559c775f::t_77560e549f7940 296
+docs/adr/0008-akses-module-deepening.md
+  s_038d67559c775f::t_6d9c26a5db38c1 195
+docs/adr/0001-global-reference-tables.md
+  s_038d67559c775f::t_c1f7d7474a8222 69
+  s_038d67559c775f::t_b2cf202dcf3702 20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "6f77cefc6f3bad9d5bf07de8798c315bfcdf0bab",
+  "prompts": {},
+  "sessions": {
+    "s_038d67559c775f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8ac43211-929f-4887-90cb-9d4473d7cf07",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Muhammad Naufal Mahdi <053792227@ecampus.ut.ac.id>"
+    }
+  }
+}
