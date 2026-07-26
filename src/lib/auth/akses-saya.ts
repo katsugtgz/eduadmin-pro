@@ -18,8 +18,8 @@ import type { IzinSlug, Membership } from "./types";
  * over them.
  *
  * `boleh()` is the AUTHORITATIVE authorization gate (identity doc §12 — hiding
- * UI is not authorization). Pages (T6) use it for visibility; server actions
- * (T5) re-invoke it server-side. Never trust client-supplied claims.
+ * UI is not authorization). Pages use it for visibility; server actions
+ * re-invoke it server-side. Never trust client-supplied claims.
  */
 export type AksesSaya =
   | { readonly status: "denied"; readonly authenticated: boolean }
@@ -51,10 +51,10 @@ export type AksesSaya =
 export type AksesAktif = Extract<AksesSaya, { status: "active" }>;
 
 /**
- * Server-side authorization composition point (T4, Wave 3 of #6). Composes the
- * Wave 1-2 layers — tenant resolution + authenticated user + the akses
+ * Server-side authorization composition point (#6). Composes the
+ * underlying layers — tenant resolution + authenticated user + the akses
  * repository + the pure evaluator — into one answer consumed by server actions
- * (T5) and pages (T6).
+ * and pages.
  *
  * Tenant boundary: `orgId` comes ONLY from `ctx.membership.orgId` (the live
  * WorkOS Keanggotaan) — never from client input. All pengguna/izin/pembatasan

@@ -2,7 +2,7 @@
 
 // SECURITY (identity doc §12 — "hiding UI is not authorization"):
 // Every action below re-evaluates `getAksesSaya().boleh(...)` SERVER-SIDE on
-// every call. The Beban Mengajar page (T6) may hide a form for a `guru`
+// every call. The Beban Mengajar page may hide a form for a `guru`
 // client, but a determined client can construct a `fetch` + `FormData` and
 // POST it directly to this action. That POST MUST still throw — the action is
 // the boundary, not the UI. The proof lives in `actions.test.ts` describe
@@ -29,7 +29,7 @@
 // AC#4 (active period SERVER-SIDE): the active Tahun Ajaran + Semester are
 // resolved inside `withTenant` via `getTahunAjaranAktif(tx)` +
 // `getSemesterAktif(tx)` — NEVER from formData. A guru's "my context" view
-// (T6) derives from this same active period; the action uses the identical
+// derives from this same active period; the action uses the identical
 // source so admin writes + guru reads cannot diverge.
 
 import { revalidatePath } from "next/cache";

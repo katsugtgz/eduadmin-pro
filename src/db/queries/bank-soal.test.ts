@@ -53,7 +53,7 @@ let _seq = 0;
 const seq = (): number => ++_seq;
 
 describeOrSkip(
-  "bank-soal repository (queries/bank-soal.ts — #16 Wave 2 / T4)",
+  "bank-soal repository (queries/bank-soal.ts — #16)",
   () => {
     let migDb: Db;
     let db: Db;

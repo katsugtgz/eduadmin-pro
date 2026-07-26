@@ -1,7 +1,7 @@
 /**
  * Data-access layer over the penempatan_rombongan_belajar table (append-only
  * student placement history). Pure repository functions — no authz logic, no
- * validation, no audit. Composed by the action layer (T6).
+ * validation, no audit. Composed by the action layer.
  *
  * §13 isolation invariant: every query runs inside
  * `withTenant(db, tenantId, tx => fn(tx, ...))`. RLS scopes all rows to the

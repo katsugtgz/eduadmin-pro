@@ -67,7 +67,7 @@ async function expectConstraintViolation(
   );
 }
 
-describeOrSkip("peserta didik tables (#7, Wave 1 / T2)", () => {
+describeOrSkip("peserta didik tables (#7)", () => {
   let db: Db;
 
   beforeAll(async () => {

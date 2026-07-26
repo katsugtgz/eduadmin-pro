@@ -1,8 +1,8 @@
 /**
- * Data-access layer over the Bank Soal tables (#16, Wave 2 / T4):
+ * Data-access layer over the Bank Soal tables (#16):
  * butir_soal (question items), paket_soal (assembled packages), and the
  * paket_soal_butir junction (ordered, weighted membership). Pure repository
- * functions — no authz logic, no audit. Composed by the T6 action layer.
+ * functions — no authz logic, no audit. Composed by the action layer.
  *
  * §13 isolation invariant: every query runs inside
  * `withTenant(db, tenantId, tx => fn(tx, ...))`. RLS scopes all rows to the

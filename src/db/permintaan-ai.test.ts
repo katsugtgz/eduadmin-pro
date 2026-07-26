@@ -76,7 +76,7 @@ const seq = (): number => ++_seq;
 
 let db: Db;
 
-describeOrSkip("permintaan_ai + draf_ai + kuota_ai tables (#12, Wave 1 / T1)", () => {
+describeOrSkip("permintaan_ai + draf_ai + kuota_ai tables (#12)", () => {
   beforeAll(async () => {
     // 1. Migrate as superuser (creates tables, RLS policies, grants).
     await runMigrations(

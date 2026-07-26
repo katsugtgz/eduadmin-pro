@@ -112,11 +112,11 @@ describeOrSkip("kurikulum reference tables (#9, T3 — GLOBAL / ADR 0001)", () =
       delete from tujuan_pembelajaran;
       delete from capaian_pembelajaran;
       delete from kurikulum;
-      -- Cross-worktree DB contamination guard: the shared Docker DB may carry
-      -- tables from sibling branches' migrations (#16/#17) whose FKs RESTRICT
-      -- on mata_pelajaran. Clear them if present so this branch's mata_pelajaran
-      -- DELETE does not trip a 23503. Conditional (information_schema) so a
-      -- missing table is a no-op rather than an error.
+      -- Isolated test-DB state guard: the shared Docker DB may carry tables
+      -- from other migration sets whose FKs RESTRICT on mata_pelajaran. Clear
+      -- them if present so the mata_pelajaran DELETE below does not trip a
+      -- 23503. Conditional (information_schema) so a missing table is a no-op
+      -- rather than an error.
       DO $$ BEGIN
         IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'perangkat_ajar') THEN DELETE FROM perangkat_ajar; END IF;
         IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'butir_soal') THEN DELETE FROM butir_soal; END IF;

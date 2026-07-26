@@ -1,5 +1,5 @@
 -- 0006_beban_mengajar.sql
--- Teacher-context data layer (#10, Wave 1 / T1).
+-- Teacher-context data layer (#10).
 --   * beban_mengajar = teaching load (connects PTK + Mata Pelajaran + Rombongan
 --                      Belajar XOR Tingkat + Tahun Ajaran + semester)
 --   * wali_kelas     = class guardian assignment (one wali per rombel per

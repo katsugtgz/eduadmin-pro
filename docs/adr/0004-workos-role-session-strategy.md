@@ -29,9 +29,8 @@ mechanics left "to be finalized" (§6, §10, §18, §20):
 4. **The revocation mechanism** must be decided: cookie-expiry-based or
    webhook-driven session store (§10, §18, §20 "Known risks").
 
-Wave 3 (Plan Task 19) asks for a decision pack that resolves these four. This
-ADR is that decision pack. It invents nothing — every claim is grounded in file
-evidence audited 2026-06-27.
+This ADR is the decision pack that resolves these four. It invents nothing —
+every claim is grounded in file evidence audited 2026-06-27.
 
 ### Current role slug set (audited from `src/lib/auth/types.ts:7-12`)
 
@@ -46,7 +45,7 @@ WorkOS OrganizationMembership `role.slug`, is exactly five:
 | `kepala_sekolah` | Head of school | Tenant-wide oversight + verification gate (e.g. `draf_ai:verifikasi`, `eraport:terbit`). |
 | `dev` | Local-only admin-equivalent shim | **Not a production role.** Enabled only by `DEV_MEMBERSHIP_ALL=true`; throws if set in `NODE_ENV=production` (`membership.ts:44-48`). |
 
-**`superuser` is absent** — verified at three independent layers (T7):
+**`superuser` is absent** — verified at three independent layers:
 
 1. **Type layer.** The `RoleSlug` union (`src/lib/auth/types.ts:7-12`) does not
    include `"superuser"`. `npm run typecheck` rejects any assignment of

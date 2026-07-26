@@ -28,7 +28,7 @@ const describeOrSkip = ready ? describe : describe.skip;
 const SEED_A = "org_TA_a";
 const SEED_B = "org_TA_b";
 
-describeOrSkip("tahun ajaran repository (#8, Wave 2 / T3)", () => {
+describeOrSkip("tahun ajaran repository (#8)", () => {
   let db: Db;
 
   beforeAll(async () => {

@@ -41,7 +41,7 @@ const describeOrSkip = ready ? describe : describe.skip;
 const SEED_A = "org_A";
 const SEED_B = "org_B";
 
-describeOrSkip("akses repository (queries/akses.ts — #6 Wave 2)", () => {
+describeOrSkip("akses repository (queries/akses.ts — #6)", () => {
   let db: Db;
 
   beforeAll(async () => {

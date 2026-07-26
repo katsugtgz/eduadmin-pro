@@ -36,7 +36,7 @@ const describeOrSkip = ready ? describe : describe.skip;
 const SEED_A = "org_pdC_a";
 const SEED_B = "org_pdC_b";
 
-describeOrSkip("peserta-didik repository (queries/peserta-didik.ts — #7 Wave 2 / T3)", () => {
+describeOrSkip("peserta-didik repository (queries/peserta-didik.ts — #7)", () => {
   let db: Db;
 
   beforeAll(async () => {

@@ -1,6 +1,6 @@
 /**
  * QR Pemindai (QR Scanner) — pure helpers for the deferred live-camera
- * scanner UI. Task #15 / Wave 2 guardrail slice.
+ * scanner UI. Guardrail slice for #15.
  *
  * STATUS (Task #15): the live camera scanner (`getUserMedia` + a QR decoder
  * library such as `nimiq-modules/qr-scanner` or `jsQR`) is **deferred to

@@ -46,7 +46,7 @@ const seq = (): number => ++_seq;
 let db: Db;
 
 describeOrSkip(
-  "wali-kelas repository (queries/wali-kelas.ts — #10 Wave 2 / T4)",
+  "wali-kelas repository (queries/wali-kelas.ts — #10)",
   () => {
     beforeAll(async () => {
       // 1. Migrate as superuser (creates tables, RLS policies, grants).

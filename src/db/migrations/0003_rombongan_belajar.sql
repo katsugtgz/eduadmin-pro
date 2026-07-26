@@ -1,5 +1,5 @@
 -- 0003_rombongan_belajar.sql
--- Academic-context data layer (#8, Wave 1 / T1).
+-- Academic-context data layer (#8).
 --   * tahun_ajaran                  = academic year (Tahun Ajaran)
 --   * tingkat                       = grade level (Tingkat) with `urutan` order
 --   * rombongan_belajar             = class / homeroom (Rombongan Belajar)

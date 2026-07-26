@@ -6,8 +6,9 @@ Deferred — pending owner acceptance (human checkpoint). This ADR records the
 boundary and decision framework for the external-channel consent regime
 (post-MVP backlog items #7–#11) but **defers all build**. No consent record
 table, no opt-out flag, no external email queue, and no WhatsApp send path is
-authorized by this ADR. Wave 4 Task 24 (T24) **will skip** until the owner
-explicitly flips this ADR to **Accepted** AND a thin vertical slice is scoped.
+authorized by this ADR. The notification build **will not start** until the
+owner explicitly flips this ADR to **Accepted** AND a thin vertical slice is
+scoped.
 
 The deferral is the safe default mandated by the post-MVP backlog
 (see `docs/POST-MVP.md`): every consent-family
@@ -144,7 +145,7 @@ Three properties make "build the foundation now" the wrong default:
 3. **Two of the three channels are Critical-risk children's-data paths.**
    Items #7, #8, #10 are Critical because a WhatsApp/email send to a Wali
    carries a minor's identity outside the tenant boundary. The MVP ship gates
-   (T20 §7) require ADR 0002 (PII at rest) to reach **Accepted** before any
+   require ADR 0002 (PII at rest) to reach **Accepted** before any
    production tenant carries real student data. A consent regime that ships
    external sends while ADR 0002 is still Deferred inherits a paper-only
    security posture for the regulated join.
@@ -219,11 +220,11 @@ earlier design reviews:
   provider-terms review (Meta Business API / BSP terms on children's data).
 
 **Therefore:** any Accepted version of this ADR that authorizes email/consent
-build (T24) MUST still mark WhatsApp as `deferred / ADR-required` and require
+build MUST still mark WhatsApp as `deferred / ADR-required` and require
 a **separate** channel-specific acceptance before any WA send code lands.
 Items #7 and #8 cannot ride along on a #9/#10 email-foundation acceptance.
 
-### If Accepted later — the bounded vertical slice for T24 (thin spec only)
+### If Accepted later — the bounded vertical slice (thin spec only)
 
 This section is **non-binding until Status flips to Accepted**. It exists to
 make the owner's acceptance decision concrete: "what exactly would T24 build?"
@@ -276,8 +277,8 @@ The answer is a thin vertical slice covering the four required elements, with
   shape is decided by the owner, not improvised by an engineer under deadline.
 - ADR 0002's Deferred posture is not undermined: no external send of the
   regulated join ships while at-rest PII protection is itself owner-pending.
-- Wave 5 stays empty (T21 §4). This ADR is consistent with "zero Wave 5
-  candidates accepted without an owner signal."
+- The consent-family backlog stays empty. This ADR is consistent with "zero
+  backlog candidates accepted without an owner signal."
 
 **Negative.**
 

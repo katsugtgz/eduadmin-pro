@@ -25,7 +25,7 @@ import { type StyleWithVars } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 /**
- * Permintaan AI + Draf AI management surface (T7, Wave 4 of #12).
+ * Permintaan AI + Draf AI management surface (#12).
  *
  * Visibility is defense-in-depth UI — NOT authorization (identity doc §12; the
  * T7 actions are the authoritative gate). Resolution mirrors the other

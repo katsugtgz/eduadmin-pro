@@ -239,8 +239,8 @@ To move this ADR to **Accepted** (Option C), the owner must record, in
 
 - Every control in the Decision is either already regression-tested (state
   machine, kuota, verification idempotency, provenance non-null) or statically
-  scannable (no AI env vars, no `NEXT_PUBLIC_*AI*`). The evidence transcript
-  makes the static controls repeatable.
+  scannable (no AI env vars, no `NEXT_PUBLIC_*AI*`). The static controls were
+  verified during implementation review and are repeatable.
 - The mock surface is small (one function), so the future real-provider swap is
   reviewable in a single diff.
 - The rejected BYO-key pattern is documented here so a future "port the source

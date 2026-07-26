@@ -33,7 +33,7 @@ const describeOrSkip = ready ? describe : describe.skip;
 const SEED_TK_A = "org_TK_a";
 const SEED_TK_B = "org_TK_b";
 
-describeOrSkip("tingkat repository (queries/tingkat.ts — #8 Wave 2)", () => {
+describeOrSkip("tingkat repository (queries/tingkat.ts — #8)", () => {
   let db: Db;
 
   beforeAll(async () => {

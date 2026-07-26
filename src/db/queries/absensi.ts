@@ -1,7 +1,7 @@
 /**
  * Data-access layer over the absensi_harian table (daily attendance). Pure
  * repository functions — no authz logic, no validation, no audit. Composed by
- * the T5 action layer (notably the Wave 3 catat/ubah actions, which wrap a
+ * the action layer (notably the catat/ubah actions, which wrap a
  * single INSERT/UPDATE + audit row).
  *
  * §13 isolation invariant: every query runs inside

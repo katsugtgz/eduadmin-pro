@@ -45,7 +45,7 @@ let _seq = 0;
 const seq = (): number => ++_seq;
 
 describeOrSkip(
-  "notifikasi repository (queries/notifikasi.ts — #20 Wave 3)",
+  "notifikasi repository (queries/notifikasi.ts — #20)",
   () => {
     let db: Db;
 

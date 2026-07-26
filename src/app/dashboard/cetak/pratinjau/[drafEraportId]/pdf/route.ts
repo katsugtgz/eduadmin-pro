@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * GET /dashboard/cetak/pratinjau/[drafEraportId]/pdf — Unduh PDF vertical slice
- * (#14, Wave 2 / Task 14). Renders the E-Raport preview payload as a minimal
+ * (#14). Renders the E-Raport preview payload as a minimal
  * valid PDF document. This is the MVP "real PDF bytes" export path; the richer
  * HTML+CSS Pratinjau (with @page A4/F4, stempel, tanda tangan) remains the
  * golden visual target (AC#3) and is reached via the browser print dialog.

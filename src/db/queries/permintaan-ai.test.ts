@@ -38,7 +38,7 @@ const SEED_B = "org_PA_b";
 let db: Db;
 
 describeOrSkip(
-  "permintaan-ai repository (queries/permintaan-ai.ts — #12 Wave 2 / T3)",
+  "permintaan-ai repository (queries/permintaan-ai.ts — #12)",
   () => {
     beforeAll(async () => {
       // 1. Migrate as superuser (creates tables, RLS policies, grants).

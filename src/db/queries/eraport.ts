@@ -1,7 +1,7 @@
 /**
  * Data-access layer over the draf_eraport + revisi_eraport tables (E-Raport
  * document lifecycle: Draf -> Terbit -> Revisi). Pure repository functions —
- * no authz logic, no validation, no audit. Composed by the action layer (T6).
+ * no authz logic, no validation, no audit. Composed by the action layer.
  *
  * §13 isolation invariant: every query runs inside
  * `withTenant(db, tenantId, tx => fn(tx, ...))`. RLS scopes all rows to the

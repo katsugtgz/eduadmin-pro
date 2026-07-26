@@ -39,7 +39,7 @@ const SEED_A = "org_pdK_a";
 const SEED_B = "org_pdK_b";
 
 describeOrSkip(
-  "kontak-peserta-didik repository (queries/kontak-peserta-didik.ts — #7 Wave 2)",
+  "kontak-peserta-didik repository (queries/kontak-peserta-didik.ts — #7)",
   () => {
     let db: Db;
     // Parent peserta_didik in SEED_B used as the FK target for cases 1-7.

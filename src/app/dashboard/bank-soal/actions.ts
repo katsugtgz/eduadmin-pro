@@ -2,7 +2,7 @@
 
 // SECURITY (identity doc §12 — "hiding UI is not authorization"):
 // Every action below re-evaluates `getAksesSaya().boleh(...)` SERVER-SIDE on
-// every call. The Bank Soal page (T6) may hide a button for a `wali_kelas`
+// every call. The Bank Soal page may hide a button for a `wali_kelas`
 // client, but a determined client can construct a `fetch` + `FormData` and POST
 // it directly to this action. That POST MUST still throw — the action is the
 // boundary, not the UI. The proof lives in `actions.test.ts` describe block

@@ -74,7 +74,7 @@ async function expectConstraintViolation(
 let db: Db;
 
 describeOrSkip(
-  "eraport repository (queries/eraport.ts — #13 Wave 2 / T4)",
+  "eraport repository (queries/eraport.ts — #13)",
   () => {
     beforeAll(async () => {
       await runMigrations(

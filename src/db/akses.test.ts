@@ -29,7 +29,7 @@ const describeOrSkip = ready ? describe : describe.skip;
 const SEED_A = "org_A";
 const SEED_B = "org_B";
 
-describeOrSkip("akses & PTK tables (#6, Wave 1)", () => {
+describeOrSkip("akses & PTK tables (#6)", () => {
   let db: Db;
 
   beforeAll(async () => {

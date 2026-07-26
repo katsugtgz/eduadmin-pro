@@ -40,7 +40,7 @@ const seq = (): number => ++_seq;
 let db: Db;
 
 describeOrSkip(
-  "kuota-ai repository (queries/kuota-ai.ts — #12 Wave 2 / T5)",
+  "kuota-ai repository (queries/kuota-ai.ts — #12)",
   () => {
     beforeAll(async () => {
       // 1. Migrate as superuser (creates tables, RLS policies, grants).

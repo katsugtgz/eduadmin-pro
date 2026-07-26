@@ -1,7 +1,7 @@
 /**
  * Data-access layer over the notifikasi + preferensi_notifikasi tables (#20,
  * MVP). Pure repository functions — no authz logic, no validation, no audit.
- * Composed by the action layer (T5) and page (T6).
+ * Composed by the action layer and page.
  *
  * MVP SCOPE (AC#5): in-app ONLY. This module MUST NOT import or invoke any
  * email / WhatsApp / SMS / push library. The proof lives in

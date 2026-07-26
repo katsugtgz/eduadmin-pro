@@ -81,7 +81,7 @@ const seq = (): number => ++_seq;
 let migDb: Db;
 let db: Db;
 
-describeOrSkip("beban mengajar + wali kelas tables (#10, Wave 1 / T1)", () => {
+describeOrSkip("beban mengajar + wali kelas tables (#10)", () => {
   beforeAll(async () => {
     // 1. Migrate as superuser (creates tables, RLS policies, grants).
     await runMigrations(

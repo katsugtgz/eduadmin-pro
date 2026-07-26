@@ -1,7 +1,7 @@
 /**
  * Data-access layer over the rombongan_belajar table (class / homeroom). Pure
  * repository functions — no authz logic, no validation, no audit. Composed by
- * the T6 action layer (notably the Wave 3 kenaikanTingkat action, which uses
+ * the action layer (notably the kenaikanTingkat action, which uses
  * `cariAtauBuatRombonganBelajar` as its progression primitive: find-or-create
  * the next-grade rombel for the new Tahun Ajaran).
  *
@@ -87,7 +87,7 @@ export async function cariRombonganBelajarById(
 
 /**
  * Find-or-create a rombongan_belajar by (tenant, nama, tingkatId,
- * tahunAjaranId). Used by the kenaikanTingkat action (Wave 3) to obtain the
+ * tahunAjaranId). Used by the kenaikanTingkat action to obtain the
  * next-grade rombel for the new Tahun Ajaran — creating it if absent.
  *
  * Implemented as a two-step SELECT-then-INSERT (NOT a DB upsert /

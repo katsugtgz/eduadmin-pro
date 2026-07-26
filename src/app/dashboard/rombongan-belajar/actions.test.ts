@@ -192,7 +192,7 @@ const DB = expect.anything();
  * Build an "active" AksesSaya mock whose `boleh()` mirrors the REAL
  * evaluasiAkses precedence (pembatasan > izin > peran default) so the tests are
  * realistic. guru has NO default rombongan_belajar izin — only :baca in this
- * test's model, mirroring the seeded akses for the Wave 3 pages.
+ * test's model, mirroring the seeded akses for the other dashboard pages.
  */
 function aksesAktif(
   roleSlug: RoleSlug,

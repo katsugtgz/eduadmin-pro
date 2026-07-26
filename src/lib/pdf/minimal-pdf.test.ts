@@ -118,7 +118,7 @@ describe("buildMinimalPdf — structural validity (ISO 32000-1 §7.5)", () => {
     expect(pdf).toMatch(/trailer\s*<<\s*\/Size\s+6\s*\/Root\s+1\s+0\s+R\s*>>/);
   });
 
-  it("8. produces > 1000 bytes for a realistic E-Raport payload (Task 14 gate)", () => {
+  it("8. produces > 1000 bytes for a realistic E-Raport payload (size gate)", () => {
     expect(bytes.byteLength).toBeGreaterThan(1000);
   });
 
@@ -160,7 +160,7 @@ describe("buildMinimalPdf — escaping + edge cases", () => {
     const bytes = buildMinimalPdf({ judul: "X", baris: [] });
     // Documents the absolute minimum so a future caller can size assertions.
     // The route's kontenKeBarisPdf always emits ≥10 lines, so the real-world
-    // minimum is comfortably above the Task 14 > 1000-byte gate.
+    // minimum is comfortably above the > 1000-byte gate.
     expect(bytes.byteLength).toBeGreaterThan(500);
   });
 

@@ -1,5 +1,5 @@
 -- 0010_bank_soal.sql
--- Bank Soal data layer (#16, Wave 1 / T1): butir_soal -> paket_soal ->
+-- Bank Soal data layer (#16): butir_soal -> paket_soal ->
 -- paket_soal_butir (assembly junction). Question items with AI-assisted drafts
 -- + assembled packages for assessments.
 --   * butir_soal        = individual question item (Pilihan Ganda / Essay /

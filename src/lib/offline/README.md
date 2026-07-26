@@ -25,7 +25,7 @@ owner approval. The placeholder string for that future surface is
 
 `src/lib/offline/guard.ts` exports `AKSI_SENSITIF` — the closed set of action
 slugs that `assertOnline()` blocks offline. The set covers all five sensitive
-categories mandated by the Task 16 brief:
+categories mandated by the offline-hardening brief:
 
 | Category | Slug(s) | Meaning |
 |---|---|---|
@@ -85,7 +85,7 @@ post-MVP optimistic-concurrency offline-draft design (plan #21, AC#1–AC#4).
   never writes to it.
 - Tests.
 
-The Task 16 hardening **does not** repurpose the store for sensitive drafts —
+The offline hardening **does not** repurpose the store for sensitive drafts —
 it ensures that when a future UI wires a sensitive mutation, the guard throws
 before the store is ever reached. Wiring a producer that bypasses the guard
 (i.e. calling `simpanDraftNilai` without first passing `assertOnline`) is a
@@ -113,6 +113,6 @@ violation of this scope.
   NOT constitute permission to wire producers. They exist so the post-MVP
   design can land without re-greenfielding the queue.
 - Playwright offline simulation (`context.setOffline(true)`) is the intended
-  end-to-end proof, but the Playwright tracer (Task 9) skips without
+  end-to-end proof, but the Playwright tracer skips without
   `E2E_AUTH_EMAIL` / `E2E_AUTH_PASSWORD`. Until those are provisioned, the
   vitest guard tests are the authoritative block-proof.

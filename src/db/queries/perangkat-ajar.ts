@@ -1,7 +1,7 @@
 /**
  * Data-access layer over the perangkat_ajar table (teaching documents #17).
  * Pure repository functions — no authz logic, no validation, no audit. Composed
- * by the action layer (T6).
+ * by the action layer.
  *
  * §13 isolation invariant: every query runs inside
  * `withTenant(db, tenantId, tx => fn(tx, ...))`. RLS scopes all rows to the

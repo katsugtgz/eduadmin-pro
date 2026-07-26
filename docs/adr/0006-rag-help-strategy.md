@@ -10,7 +10,7 @@ and the items explicitly excluded from the slice.
 
 This ADR cannot move to **Accepted** until **ADR 0003 (MVP AI Strategy)** moves
 to Accepted (real provider chosen, key posture decided, DPA + UU PDP transfer
-terms agreed). Per the plan rule "If AI (T13) remains mock/deferred, RAG/help
+terms agreed). Per the plan rule "If AI remains mock/deferred, RAG/help
 build must defer," ADR 0003's `Deferred` status propagates here: **as long as the
 only generation path is `jalankanMockAi`, no RAG/help build may start.**
 
@@ -161,7 +161,7 @@ to build.** T25 owns the build; T25 may not start until this ADR is Accepted.
   `embeddings` table, not the curriculum tables). The provider's embedding model
   is chosen as part of ADR 0003's provider decision (single vendor).
 
-### Curriculum seeding — separately gated (T26)
+### Curriculum seeding — separately gated
 
 The "Deterministic AI-assisted curriculum seeding" item (`docs/POST-MVP.md`)
 is **not** covered by this ADR's acceptance. It is separately gated because:
@@ -291,13 +291,13 @@ speculative infra.
 **Option E — Expand the slice to include curriculum RAG and/or predictive
 analytics.** Effort: high–very-high. Risk: **critical** — pulls in curriculum-
 seeding minimization (T26's scope) and ML governance for minors (a separate
-ADR). **Rejected for this slice.** Curriculum seeding is separately gated
-(T26); advanced analytics/ML/prediction is explicitly excluded (see above).
+ADR). **Rejected for this slice.** Curriculum seeding is separately gated;
+advanced analytics/ML/prediction is explicitly excluded (see above).
 
 ## References
 
 - `docs/adr/0003-mvp-ai-strategy.md` — **the load-bearing dependency.** Its
-  `Deferred` status (T13) propagates to this ADR. Its controls (mock-only
+  `Deferred` status propagates to this ADR. Its controls (mock-only
   generation, honest labeling, no BYO key, no AI env vars, verification gate,
   provenance) govern the generation half of any future RAG surface.
 - `docs/POST-MVP.md` — the three post-MVP AI/RAG items: deterministic AI-

@@ -225,7 +225,7 @@ describe("ImporPesertaDidikPage — render by akses context (#18)", () => {
 });
 
 // ===========================================================================
-// H. Ekspor tenant tamper-proofing — Task 12 verification (issue #18 / PR #43).
+// H. Ekspor tenant tamper-proofing verification (issue #18 / PR #43).
 //
 // The export is rendered as a server-generated `data:text/csv` URI on a React
 // Server Component — there is NO parameterized HTTP export endpoint, hence no
@@ -246,7 +246,7 @@ describe("ImporPesertaDidikPage — render by akses context (#18)", () => {
 // surface.
 // ===========================================================================
 
-describe("H. ekspor tenant tamper-proofing (#18 AC#4, Task 12)", () => {
+describe("H. ekspor tenant tamper-proofing (#18 AC#4)", () => {
   it("withTenant is called exactly once with membership.orgId — never any other tenant", async () => {
     mocks.getAksesSaya.mockResolvedValue(aksesAktif("admin_satuan_pendidikan"));
     await renderPage();

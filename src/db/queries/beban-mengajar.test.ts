@@ -46,7 +46,7 @@ let _seq = 0;
 const seq = (): number => ++_seq;
 
 describeOrSkip(
-  "beban mengajar repository (queries/beban-mengajar.ts — #10 Wave 2 / T3)",
+  "beban mengajar repository (queries/beban-mengajar.ts — #10)",
   () => {
     // Insert/DELETE on GLOBAL mata_pelajaran run as the migrator superuser
     // (app_user has SELECT only — ADR 0001). Tenant-scoped writes use the app

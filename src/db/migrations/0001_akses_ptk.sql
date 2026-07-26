@@ -1,5 +1,5 @@
 -- 0001_akses_ptk.sql
--- Access & PTK layer (#6, Wave 1).
+-- Access & PTK layer (#6).
 --   * ptk              = PTK personnel record (teacher / staff)
 --   * pengguna         = app login identity (WorkOS User), optionally linked to a PTK
 --   * izin_akses       = explicit permission grant per pengguna (Izin Akses)

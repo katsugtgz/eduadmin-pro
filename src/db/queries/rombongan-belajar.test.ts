@@ -43,7 +43,7 @@ const TA_A_ID = "22222222-0000-0000-0000-000000000001";
 const TA_B_ID = "22222222-0000-0000-0000-000000000002";
 
 describeOrSkip(
-  "rombongan-belajar repository (queries/rombongan-belajar.ts — #8 Wave 2 / T5)",
+  "rombongan-belajar repository (queries/rombongan-belajar.ts — #8)",
   () => {
     let db: Db;
 

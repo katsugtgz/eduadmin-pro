@@ -9,12 +9,12 @@ import {
 } from "./guard";
 
 /**
- * Mode Offline (#21) — sensitive-action guard (AC#5 + Task 16 hardening). The
+ * Mode Offline (#21) — sensitive-action guard (AC#5 hardening). The
  * guard throws when offline for the closed set of sensitive mutations (grades,
  * attendance, roles, AI requests, exports). `navigator.onLine` is toggled via
  * Object.defineProperty.
  *
- * Task 16 (Wave 2) hardened the vocabulary from the original 4-slug set
+ * A later hardening pass grew the vocabulary from the original 4-slug set
  * (eraport/cetak/AI×2) to the 7-slug set covering all five sensitive
  * categories mandated by the MVP offline-scope brief. The thrown message was
  * standardized to the exact Bahasa spec string `PESAN_BLOK_OFFLINE`.
@@ -30,9 +30,9 @@ function setOnline(value: boolean): void {
 beforeEach(() => setOnline(true));
 afterEach(() => setOnline(true));
 
-describe("guard (#21 + T16) — AC#5 sensitive action vocabulary", () => {
+describe("guard (#21) — AC#5 sensitive action vocabulary", () => {
   it("AKSI_SENSITIF is the closed set of online-only actions (all 5 T16 categories)", () => {
-    // Task 16 mandates these five categories are ALL blocked offline:
+    // These five categories are ALL blocked offline:
     //   grades, attendance, roles, AI requests, exports.
     expect(AKSI_SENSITIF).toEqual([
       // grades
@@ -55,18 +55,18 @@ describe("guard (#21 + T16) — AC#5 sensitive action vocabulary", () => {
   });
 });
 
-describe("guard (#21 + T16) — assertOnline (AC#5 + Task 16 proof)", () => {
-  it("assertOnline('simpanNilai') THROWS when offline — grades blocked (T16)", () => {
+describe("guard (#21) — assertOnline (AC#5 proof)", () => {
+  it("assertOnline('simpanNilai') THROWS when offline — grades blocked", () => {
     setOnline(false);
     expect(() => assertOnline("simpanNilai")).toThrow();
   });
 
-  it("assertOnline('simpanAbsensi') THROWS when offline — attendance blocked (T16)", () => {
+  it("assertOnline('simpanAbsensi') THROWS when offline — attendance blocked", () => {
     setOnline(false);
     expect(() => assertOnline("simpanAbsensi")).toThrow();
   });
 
-  it("assertOnline('ubahPeranAkses') THROWS when offline — roles blocked (T16)", () => {
+  it("assertOnline('ubahPeranAkses') THROWS when offline — roles blocked", () => {
     setOnline(false);
     expect(() => assertOnline("ubahPeranAkses")).toThrow();
   });
@@ -121,7 +121,7 @@ describe("guard (#21 + T16) — assertOnline (AC#5 + Task 16 proof)", () => {
   });
 });
 
-describe("guard (#21 + T16) — bolehAksiSensitif + isOnline helpers", () => {
+describe("guard (#21) — bolehAksiSensitif + isOnline helpers", () => {
   it("isOnline mirrors navigator.onLine", () => {
     setOnline(true);
     expect(isOnline()).toBe(true);

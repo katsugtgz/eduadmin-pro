@@ -77,7 +77,7 @@ async function expectConstraintViolation(
 let db: Db;
 
 describeOrSkip(
-  "draf-ai repository (queries/draf-ai.ts — #12 Wave 2 / T4)",
+  "draf-ai repository (queries/draf-ai.ts — #12)",
   () => {
     beforeAll(async () => {
       // 1. Migrate as superuser (creates tables, RLS policies, grants).

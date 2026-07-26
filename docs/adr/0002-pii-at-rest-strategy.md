@@ -178,7 +178,8 @@ becomes true:
   RLS suite (`src/db/rls.test.ts`) and the ownership-gate security fixes
   already merged (`fix(security): C1+C3+C14…`) keep the highest-value controls
   under regression.
-- The PII inventory is recorded here and in the evidence transcript; any
+- The PII inventory is recorded here and was verified during implementation
+  review; any
   schema change that adds a regulated column trips a trigger condition.
 - The owner acceptance checkpoint forces an explicit decision before real
   student data is loaded into production — the deferral cannot silently

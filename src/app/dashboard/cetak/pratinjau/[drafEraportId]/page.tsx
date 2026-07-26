@@ -84,7 +84,7 @@ export default async function Page({
           {/*
             Two print paths: (1) the on-screen Pratinjau below + browser print
             dialog is the AC#3 golden target; (2) this "Unduh PDF" link is the
-            Task 14 server-rendered PDF vertical slice. The link is convenience
+            server-rendered PDF vertical slice. The link is convenience
             UI only — the GET route handler is the authz boundary (identity doc
             §12; "hiding UI is not authorization").
           */}

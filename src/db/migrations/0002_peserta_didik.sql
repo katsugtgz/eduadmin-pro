@@ -1,5 +1,5 @@
 -- 0002_peserta_didik.sql
--- Peserta Didik (student) data layer (#7, Wave 1 / T2).
+-- Peserta Didik (student) data layer (#7).
 --   * peserta_didik                  = student core record (denormalized status cache)
 --   * riwayat_status_peserta_didik   = append-only status history (audit trail)
 --   * mutasi_peserta_didik           = transfer records (masuk / keluar)

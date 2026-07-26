@@ -1,6 +1,6 @@
 /**
  * Tiny zero-dependency PDF-1.4 document builder for the Cetak export vertical
- * slice (#14, Wave 2 / Task 14). Produces a valid (Acrobat / Preview / pdf.js
+ * slice (#14). Produces a valid (Acrobat / Preview / pdf.js
  * -readable) single-page text-only PDF: header, catalog/pages/page/font
  * objects, one content stream, a 20-byte-aligned xref table, trailer, and
  * %%EOF.

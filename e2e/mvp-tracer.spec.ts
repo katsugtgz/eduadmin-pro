@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 import { ConsoleGuard } from "./lib/console-guard";
 
 /**
- * MVP tracer bullet — Plan Task 9 (Wave 1).
+ * MVP tracer bullet.
  *
  * Vertical slice: authenticate → `/dashboard` → tenant selection →
  * `/dashboard/peserta-didik` read flow. Single spec, single chromium project.
@@ -92,7 +92,7 @@ test("smoke: dev server /health is up (always-green wiring proof)", async ({
   ).toBe(0);
 
   // Evidence: capture so the deliverable file exists.
-  await page.screenshot({ path: `${EVIDENCE_DIR}/task-9-smoke.png` });
+  await page.screenshot({ path: `${EVIDENCE_DIR}/tracer-smoke.png` });
 });
 
 /**
@@ -201,7 +201,7 @@ test("tracer: authenticated Pengguna reads Peserta Didik roster", async ({
   ).toBe(0);
 
   await page.screenshot({
-    path: `${EVIDENCE_DIR}/task-9-tracer.png`,
+    path: `${EVIDENCE_DIR}/tracer-full-flow.png`,
     fullPage: true,
   });
 });

@@ -19,7 +19,7 @@ import { type StyleWithVars } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 /**
- * E-Raport management surface (Wave 4 of #13).
+ * E-Raport management surface (#13).
  *
  * Visibility is defense-in-depth UI — NOT authorization (identity doc §12; the
  * actions are the authoritative gate). Resolution mirrors the other dashboard

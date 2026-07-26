@@ -1,5 +1,5 @@
 -- 0008_permintaan_ai.sql
--- AI workflow data layer (#12, Wave 1 / T1): permintaan_ai -> draf_ai + kuota_ai.
+-- AI workflow data layer (#12): permintaan_ai -> draf_ai + kuota_ai.
 --   * permintaan_ai = AI request lifecycle (state machine: dibuat->diproses->
 --                     selesai|gagal|dibatalkan). Retry = new row with
 --                     permintaan_terkait_id pointing at the prior attempt.

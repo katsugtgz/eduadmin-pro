@@ -13,8 +13,8 @@ import BerandaPage from "./page";
  * (`react-server-dom-webpack`). It does NOT fire under `react-dom/server`
  * `renderToString` nor under jsdom client rendering (verified: both report
  * zero warnings even with the bug present). It therefore cannot be asserted
- * by a Vitest unit test in this repo — the regression guard lives in the
- * agent-browser dogfood harness, which checks the browser/server console for
+ * by a Vitest unit test in this repo — the regression guard is smoke-tested
+ * via browser automation, which checks the browser/server console for
  * `unique "key"` after a fresh `/` load.
  *
  * What we *can* lock in here is that the landing renders its hero and module

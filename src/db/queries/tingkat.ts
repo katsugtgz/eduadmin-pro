@@ -58,8 +58,7 @@ export async function cariTingkatById(
  * The PROGRESSION primitive: find the next grade level strictly above
  * `urutanSaatIni` (smallest `urutan` greater than the current one). Returns
  * null if the student is in the top grade (no higher tingkat) or if
- * `urutanSaatIni` is above the maximum. Drives the `kenaikanTingkat` action
- * (Wave 3).
+ * `urutanSaatIni` is above the maximum. Drives the `kenaikanTingkat` action.
  */
 export async function cariTingkatBerikutnya(
   db: Db | Tx,

@@ -1,7 +1,7 @@
 /**
  * Data-access layer over the peserta_didik tables (peserta_didik +
  * riwayat_status_peserta_didik). Pure repository functions — no authz logic,
- * no validation, no audit. Composed by the T6 action layer.
+ * no validation, no audit. Composed by the action layer.
  *
  * §13 isolation invariant: every query runs inside
  * `withTenant(db, tenantId, tx => fn(tx, ...))`. RLS scopes all rows to the

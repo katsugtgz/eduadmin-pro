@@ -38,7 +38,7 @@ const SEED_A = "org_pdM_a";
 const SEED_B = "org_pdM_b";
 
 describeOrSkip(
-  "mutasiPesertaDidik repository (queries/mutasi-peserta-didik.ts — #7 Wave 2 T5)",
+  "mutasiPesertaDidik repository (queries/mutasi-peserta-didik.ts — #7)",
   () => {
     let db: Db;
     // Shared peserta_didik row in SEED_B (seeded in beforeAll; reused by the

@@ -47,7 +47,7 @@ let _seq = 0;
 const seq = (): number => ++_seq;
 
 describeOrSkip(
-  "absensi repository (queries/absensi.ts — #15 Wave 2 / T5)",
+  "absensi repository (queries/absensi.ts — #15)",
   () => {
     let db: Db;
     // Shared FK parents in SEED_A + SEED_B (seeded in beforeAll; reused by

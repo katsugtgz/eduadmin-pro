@@ -4,7 +4,7 @@
  * Mode Offline (#21) — sensitive-action online guard. AC#5: certain actions are
  * too sensitive to queue offline and MUST require a live server round-trip.
  *
- * MVP offline scope (Task 16 / Wave 2 hardening): offline is **read-only by
+ * MVP offline scope: offline is **read-only by
  * intent**. No tenant-sensitive mutation may be queued in localStorage, and the
  * guard throws before any such mutation is attempted while `!navigator.onLine`.
  * The closed vocabulary below covers all five sensitive categories mandated by
@@ -67,7 +67,7 @@ export function isOnline(): boolean {
 }
 
 /**
- * AC#5 / Task 16: throw a Bahasa Error when `!navigator.onLine`. Called by
+ * AC#5: throw a Bahasa Error when `!navigator.onLine`. Called by
  * every sensitive client entrypoint before it would otherwise submit. The
  * thrown Error's message starts with {@linkcode PESAN_BLOK_OFFLINE} and names
  * the action for debug context; the caller surfaces it via toast / inline

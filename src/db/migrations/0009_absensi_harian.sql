@@ -1,5 +1,5 @@
 -- 0009_absensi_harian.sql
--- Daily attendance data layer (#15, Wave 1).
+-- Daily attendance data layer (#15).
 --   * absensi_harian = one daily attendance record per peserta_didik per date
 --     per rombongan_belajar
 --

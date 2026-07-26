@@ -1,5 +1,5 @@
 -- 0007_penilaian.sql
--- Grading data layer (#11, Wave 1 / T1): komponen_nilai -> penilaian -> nilai_peserta_didik.
+-- Grading data layer (#11): komponen_nilai -> penilaian -> nilai_peserta_didik.
 --   * komponen_nilai      = grading component (UTS, UAS, Tugas Harian, ...) tied to a
 --                           beban_mengajar; carries a positive `bobot` weight for Nilai
 --                           Akhir derivation (AC#3 — visible & auditable).

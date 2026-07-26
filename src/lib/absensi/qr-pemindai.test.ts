@@ -10,7 +10,7 @@ import {
  * scanner UI ships. The future client component imports
  * `terjemahkanErrorKamera` and renders the returned Bahasa `pesan` next to
  * the planned `[data-testid="manual-qr-input"]` element. Playwright auth
- * fixture is unavailable (T9), so this vitest unit test on the error
+ * fixture is unavailable, so this vitest unit test on the error
  * handler logic is the evidence of record.
  */
 

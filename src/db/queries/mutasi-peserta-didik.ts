@@ -1,13 +1,13 @@
 /**
  * Data-access layer over the mutasi_peserta_didik table (student transfer
  * records). Pure repository functions — no authz logic, no validation, no
- * audit. Composed by the action layer (T6).
+ * audit. Composed by the action layer.
  *
  * COMPOSITION BOUNDARY: this repo is intentionally narrow — mutasi-table CRUD
  * only. It does NOT call `ubahStatus` from peserta-didik.ts. The atomic
  * composition (`tambahMutasi` + `ubahStatus('pindah')` in one `withTenant` tx)
- * happens in the ACTION layer (T6). Keeping this repo independent of
- * peserta-didik.ts enables parallel Wave 2 development of the three repos.
+ * happens in the ACTION layer. Keeping this repo independent of
+ * peserta-didik.ts enables parallel development of the three repos.
  *
  * §13 isolation invariant: every query runs inside
  * `withTenant(db, tenantId, tx => fn(tx, ...))`. RLS scopes all rows to the

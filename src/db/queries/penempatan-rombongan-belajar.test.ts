@@ -40,7 +40,7 @@ const SEED_A = "org_PEN_a";
 const SEED_B = "org_PEN_b";
 
 describeOrSkip(
-  "penempatanRombonganBelajar repository (queries/penempatan-rombongan-belajar.ts — #8 Wave 2 T6)",
+  "penempatanRombonganBelajar repository (queries/penempatan-rombongan-belajar.ts — #8)",
   () => {
     let db: Db;
     // Shared FK parents in SEED_A (seeded in beforeAll; reused across cases).
