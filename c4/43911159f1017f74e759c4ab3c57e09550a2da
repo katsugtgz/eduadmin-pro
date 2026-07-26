@@ -1,0 +1,65 @@
+src/db/seed/README.md
+  s_038d67559c775f::t_78cdfe8cd0603c 24
+.gitignore
+  s_038d67559c775f::t_0e8b9b74569f8b 72-73
+src/lib/offline/README.md
+  s_038d67559c775f::t_efcbf2dddaa110 1,5
+  s_038d67559c775f::t_30723b6d890af6 21
+package.json
+  s_038d67559c775f::t_a60fa3ff3fe5af 2
+docs/architecture/identity-and-access.md
+  s_038d67559c775f::t_ee512140ea830b 83
+  s_038d67559c775f::t_a3a63d5929ede3 68
+  s_038d67559c775f::t_e7008c37bd2721 91
+  s_038d67559c775f::t_134eac88387e35 100-101
+  s_038d67559c775f::t_a6e33b30524a74 7
+  s_038d67559c775f::t_945e476ecaa469 12
+docs/POST-MVP.md
+  s_038d67559c775f::t_7977fcc553ecda 89-91
+src/app/dashboard/pengaturan/schemas.ts
+  s_038d67559c775f::t_2919877911f75b 5,23-24
+src/components/onboarding/form-satuan-pendidikan-baru.tsx
+  s_038d67559c775f::t_9a617cb77d5f62 13
+src/components/rombongan-belajar/daftar-rombongan-belajar.tsx
+  s_038d67559c775f::t_0f676ed8bd26f8 9
+src/components/rombongan-belajar/daftar-tingkat.tsx
+  s_038d67559c775f::t_b238d4d45a6261 8
+src/db/migrations/0001_profil_pengaturan_satuan.sql
+  s_038d67559c775f::t_982175d1845dc8 5,9,35
+src/db/migrations/0008_permintaan_ai.sql
+  s_038d67559c775f::t_4e24362f32d733 13
+src/db/migrations/0009_eraport.sql
+  s_038d67559c775f::t_5f43cc9057abf2 15
+src/db/migrations/0010_bank_soal.sql
+  s_038d67559c775f::t_3d9666175f2ef3 12
+src/db/queries/bank-soal.ts
+  s_038d67559c775f::t_d7ccd4d18bf185 19,162
+src/db/schema.ts
+  s_038d67559c775f::t_a64c3cfea24657 1385,1403
+src/db/seed/referensi.ts
+  s_038d67559c775f::t_890bde34256ff3 8
+src/lib/absensi/qr-pemindai.ts
+  s_038d67559c775f::t_dd97687ef466e7 42
+src/lib/auth/otorisasi.ts
+  s_038d67559c775f::t_b7fa27f15c85cd 47
+src/lib/auth/types.ts
+  s_038d67559c775f::t_07f7a7c9b7a2c9 19
+src/lib/pdf/minimal-pdf.ts
+  s_038d67559c775f::t_4104868247c8f6 9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "c443911159f1017f74e759c4ab3c57e09550a2da",
+  "prompts": {},
+  "sessions": {
+    "s_038d67559c775f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8ac43211-929f-4887-90cb-9d4473d7cf07",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Muhammad Naufal Mahdi <053792227@ecampus.ut.ac.id>"
+    }
+  }
+}
