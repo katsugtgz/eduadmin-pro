@@ -12,7 +12,7 @@
 --                      carrying alasan + konten_perubahan and flips the parent
 --                      draf_eraport.status to 'revisi'.
 --
--- DOMAIN DISTINCTION (CONTEXT.md): "E-Raport" is the final report document per
+-- DOMAIN DISTINCTION (docs/domain-glossary.md): "E-Raport" is the final report document per
 -- student per period. "Draf E-Raport" is the in-progress draft; "Terbit" is the
 -- published (locked) state; "Revisi" records a requested change with a reason.
 -- A revisi does NOT silently mutate the published content — it appends an

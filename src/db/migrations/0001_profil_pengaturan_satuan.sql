@@ -2,11 +2,11 @@
 -- Profil + Pengaturan + Preferensi Cetak for satuan_pendidikan (#5).
 --   * Profil        = official identity (NPSN, jenjang, alamat, kepala, logo)
 --   * Pengaturan    = operational defaults (tahun ajaran, semester, zona)
---   * Preferensi    = MVP print prefs (A4/F4 only — see roadmap.md §Gate)
+--   * Preferensi    = MVP print prefs (A4/F4 only — see MVP scope gate)
 --
 -- satuan_pendidikan IS the tenant boundary (id = WorkOS Organization.id),
 -- so it is intentionally NOT RLS'd (would be circular). Isolation enforced
--- at the query layer (`where id = membership.orgId`). See CONTEXT.md for
+-- at the query layer (`where id = membership.orgId`). See docs/domain-glossary.md for
 -- the Satuan Pendidikan / Keanggotaan glossary and 0000_tenant_spine.sql
 -- for the base schema + grants.
 
@@ -32,7 +32,7 @@ comment on column satuan_pendidikan.tahun_ajaran_aktif is 'Tahun ajaran aktif, m
 comment on column satuan_pendidikan.semester_aktif    is 'Semester aktif: Ganjil|Genap.';
 comment on column satuan_pendidikan.zona_waktu        is 'IANA timezone untuk jam lokal sekolah (default Asia/Jakarta).';
 
--- === Preferensi Cetak (MVP: A4/F4 only — see roadmap.md §Gate) ===
+-- === Preferensi Cetak (MVP: A4/F4 only — see MVP scope gate) ===
 alter table satuan_pendidikan add column if not exists cetak_paper_size     text    not null default 'A4' check (cetak_paper_size in ('A4','F4'));
 alter table satuan_pendidikan add column if not exists cetak_tampilkan_logo boolean not null default true;
 alter table satuan_pendidikan add column if not exists cetak_tampilkan_header boolean not null default true;

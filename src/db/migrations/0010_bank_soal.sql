@@ -9,7 +9,7 @@
 --   * paket_soal_butir  = ordered junction linking items into packages with a
 --                         per-item bobot (weight).
 --
--- DOMAIN DISTINCTION (CONTEXT.md): a Butir Soal is a reusable, searchable
+-- DOMAIN DISTINCTION (docs/domain-glossary.md): a Butir Soal is a reusable, searchable
 -- question; a Paket Soal is the assembled bundle used by an assessment. The
 -- junction preserves ordering + weight so the same item can be reused across
 -- packages with different weights.

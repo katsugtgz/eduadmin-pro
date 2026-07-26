@@ -2,7 +2,7 @@ import { z } from "zod";
 
 /**
  * Profil Satuan Pendidikan — official identity of the tenant school.
- * See CONTEXT.md (Profil) and issue #5.
+ * See docs/domain-glossary.md (Profil) and issue #5.
  */
 export const ProfilSatuanPendidikanSchema = z.object({
   nama: z.string().trim().min(1),
@@ -20,8 +20,8 @@ export const ProfilSatuanPendidikanSchema = z.object({
 
 /**
  * Pengaturan Satuan Pendidikan — operational defaults for the tenant.
- * See CONTEXT.md (Pengaturan) and issue #5. MVP Preferensi Cetak is
- * limited to A4/F4 paper size (roadmap.md §Gate).
+ * See docs/domain-glossary.md (Pengaturan) and issue #5. MVP Preferensi Cetak is
+ * limited to A4/F4 paper size (MVP scope gate).
  */
 export const PengaturanSatuanPendidikanSchema = z.object({
   tahunAjaran: z.string().trim().regex(/^\d{4}\/\d{4}$/),

@@ -69,12 +69,6 @@ yarn-error.log*
 ehthumbs.db
 Thumbs.db
 
-# ── Agent harness runtime state (not project content) ───────────────
-.omo/
-.serena/
+# ── Local tooling ────────────────────────────────────────────────────
+.claude/
 .env.local
-
-# ── Agent tooling artifacts (skills, debug captures) ────────────────
-.agents/
-skills-lock.json
-console-errors.txt

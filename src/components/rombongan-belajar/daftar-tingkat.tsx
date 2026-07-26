@@ -5,7 +5,7 @@ import type { Tingkat } from "@/db/schema";
  * Read-only list of Tingkat (grade levels) in the active Satuan Pendidikan,
  * ordered by `urutan` ascending (the progression order). The list is purely
  * informational — there is no delete action (archive, not hard-delete per
- * CONTEXT.md). `bolehBuat` is accepted for contract symmetry with the page
+ * docs/domain-glossary.md). `bolehBuat` is accepted for contract symmetry with the page
  * (which gates the create forms); the list itself renders identically for all
  * viewers who pass the `rombongan_belajar:baca` gate.
  */

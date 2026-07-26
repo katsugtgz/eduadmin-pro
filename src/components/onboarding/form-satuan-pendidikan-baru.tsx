@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 /**
  * Jenjang options spanning the full Indonesian schooling ladder, including
  * Madrasah equivalents (MI = SD, MTs = SMP, MA = SMA/SMK). Rendered as a
- * native `<select>` per the components/AGENTS.md note that a dedicated Select
+ * native `<select>` because a dedicated Select
  * primitive is deferred; raw selects reuse `inputVariants()` for consistent
  * field chrome.
  */

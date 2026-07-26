@@ -16,7 +16,7 @@
  * extended) using the GLOBAL schema import.
  *
  * SOFT DELETE: `arsipkanButirSoal` flips status aktif -> arsip. Butir are
- * never hard-deleted (per CONTEXT.md, no hard-delete of domain data); an
+ * never hard-deleted (per docs/domain-glossary.md, no hard-delete of domain data); an
  * archived butir stays referenceable from existing paket via the junction.
  */
 import { and, asc, eq, ilike } from "drizzle-orm";
@@ -159,7 +159,7 @@ export async function ubahButirSoal(
 
 /**
  * Soft-delete: flip status aktif -> arsip. The row is preserved (per
- * CONTEXT.md, no hard-delete of domain data). Throws when absent.
+ * docs/domain-glossary.md, no hard-delete of domain data). Throws when absent.
  */
 export async function arsipkanButirSoal(
   db: Db | Tx,

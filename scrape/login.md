@@ -1,3 +1,0 @@
-Menghubungkan Database...
-
-Mohon tunggu sebentar, sedang menyiapkan lingkungan Anda.

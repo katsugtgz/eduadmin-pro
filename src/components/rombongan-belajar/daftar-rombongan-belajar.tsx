@@ -6,7 +6,7 @@ import type { RombonganBelajar } from "@/db/schema";
 /**
  * Read-only list of Rombongan Belajar (classes / homerooms) in the active
  * Satuan Pendidikan, ordered by `nama` ascending. Purely informational — no
- * delete action (archive, not hard-delete per CONTEXT.md). `bolehBuat` is
+ * delete action (archive, not hard-delete per docs/domain-glossary.md). `bolehBuat` is
  * accepted for contract symmetry with the page; the list itself renders
  * identically for all viewers who pass the `rombongan_belajar:baca` gate.
  */

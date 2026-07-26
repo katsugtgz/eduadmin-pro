@@ -6,7 +6,7 @@
  * %%EOF.
  *
  * Why hand-rolled and not `pdfkit` / `jspdf` / `@react-pdf/renderer`:
- * hyperplan/plan.md defers those (heavy native/JS deps). The MVP "Unduh PDF"
+ * deferred for MVP (heavy native/JS deps). The MVP "Unduh PDF"
  * need is a single-page text rendering of the E-Raport preview payload, which
  * a ~100-line ISO 32000-1 writer covers. The richer HTML+CSS Pratinjau (with
  * @page A4/F4, embedded stempel, tanda tangan block) remains the golden visual

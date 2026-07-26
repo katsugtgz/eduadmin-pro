@@ -44,7 +44,7 @@ export const PERAN_KE_IZIN_DEFAULT: Record<RoleSlug, readonly IzinSlug[]> = {
   // peserta_didik:baca + rombongan_belajar:baca granted to every teaching role
   // (students and classes are core teaching data); buat/ubah remain
   // admin-scoped. No :hapus this slice (archive, not hard-delete per
-  // CONTEXT.md). Tahun Ajaran management is admin-only, but kepala_sekolah
+  // docs/domain-glossary.md). Tahun Ajaran management is admin-only, but kepala_sekolah
   // reads it. kurikulum:baca is universal — curriculum reference data is
   // read-only for all roles.
   admin_satuan_pendidikan: [

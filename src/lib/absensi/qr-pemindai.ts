@@ -39,7 +39,7 @@
  * minted by tenant B, posted to tenant A's action, simply resolves to a
  * tenant-A row carrying a meaningless string — never a leak.
  *
- * @see CONTEXT.md "Absensi QR" — capture method only; never replaces
+ * @see docs/domain-glossary.md "Absensi QR" — capture method only; never replaces
  *   Status Kehadiran or the AC#3 correctable rule.
  */
 

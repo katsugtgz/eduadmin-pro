@@ -86,6 +86,6 @@ konsumen pada MVP. Ditangguhkan.
   menulis ADR yang secara eksplisit mengaktifkannya.
 - Fitur enterprise WorkOS (SSO, Directory Sync/SCIM, MFA enforcement, Admin
   Portal, Widgets, FGA, Vault, Radar, Custom Domains) juga ditangguhkan —
-  lihat `AGENTS.md` § "Identity and access".
-- Untuk daftar positif apa saja yang ADA di MVP, lihat `hyperplan/plan.md`
-  dan ringkasan modul di `src/components/dashboard-aktif.tsx`.
+  lihat `docs/architecture/identity-and-access.md`.
+- Untuk daftar positif apa saja yang ADA di MVP, lihat ringkasan modul di
+  `src/components/dashboard-aktif.tsx`.

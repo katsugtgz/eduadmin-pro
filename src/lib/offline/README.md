@@ -1,8 +1,8 @@
-# Mode Offline — MVP Scope (Task 16 / Wave 2)
+# Mode Offline — MVP Scope
 
 > Source of truth for the **MVP** offline surface. Read before adding any new
 > offline producer (a form that queues a draft) or any new sensitive-action
-> label. Post-MVP aspirations live in `../../../postmvp.md`, not here.
+> label.
 
 ## 1. MVP scope: read-only by intent
 
@@ -18,8 +18,7 @@ the server. The user is told to reconnect.
 The positive offline surface (a cached read route served from a service worker
 when the network is down) is **deferred** — there is no service worker,
 Workbox, or `manifest.json` in this repo today. Adding any of those requires
-owner approval (see `AGENTS.md` §"Identity and access" and the Task 16 brief's
-MUST-NOT-DO list). The placeholder string for that future surface is
+owner approval. The placeholder string for that future surface is
 `Data tidak tersedia saat offline`.
 
 ## 2. Sensitive-action vocabulary (closed set)

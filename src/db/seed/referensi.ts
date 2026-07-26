@@ -5,7 +5,7 @@ import type { Pool } from "pg";
  * Dijalankan sebagai migrator superuser (DATABASE_MIGRATOR_URL). app_user
  * hanya SELECT. Idempotent (ON CONFLICT DO NOTHING).
  *
- * COMPLIANCE (CONTEXT.md + plan §1 ship-blocker): kurikulum resmi TIDAK
+ * COMPLIANCE (docs/domain-glossary.md + plan §1 ship-blocker): kurikulum resmi TIDAK
  * dibuat AI. status_persetujuan = 'memerlukan_tinjauan' sampai reviewer
  * manusia menyetujui. `sumber` mencantumkan Kemdikbud. Untuk keperluan dev
  * + e2e saja — bukan sumber kanonik tanpa review manusia.

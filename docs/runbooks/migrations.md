@@ -133,9 +133,6 @@ docker exec eduadmin-db psql -U postgres -d eduadmin_migration_test -t -A -c \
 # expect: 43
 ```
 
-**Cold-apply gate evidence** captured by Task 8 lives at
-`.omo/evidence/task-8-cold-apply.log`.
-
 ### 2.5 Tear down the disposable DB
 
 ```bash
@@ -346,4 +343,3 @@ Symptom → cause → fix.
   `drizzle-kit generate`): `drizzle.config.ts`.
 - Container / roles: `docker-compose.yml`, `docker/init.sql`.
 - Env defaults: `.env.example`.
-- Cold-apply gate evidence: `.omo/evidence/task-8-cold-apply.log`.

@@ -1382,7 +1382,7 @@ export type RevisiEraportInsert = typeof revisiEraport.$inferInsert;
 // junction with per-item bobot (weight). Defined after draf_ai + tahun_ajaran
 // + tingkat so the FK references resolve without TDZ.
 //
-// DOMAIN DISTINCTION (CONTEXT.md): a Butir Soal is a reusable, searchable
+// DOMAIN DISTINCTION (docs/domain-glossary.md): a Butir Soal is a reusable, searchable
 // question; a Paket Soal is the assembled bundle used by an assessment. The
 // junction preserves ordering + weight so the same item can be reused across
 // packages with different weights.
@@ -1400,7 +1400,7 @@ export type RevisiEraportInsert = typeof revisiEraport.$inferInsert;
  * `kunci_jawaban` is the canonical answer; `pembahasan` is the optional
  * worked solution. `status` is aktif (default) or arsip — archive is a
  * soft-delete that hides the row from the active list without destroying it
- * (per CONTEXT.md, no hard-delete of domain data).
+ * (per docs/domain-glossary.md, no hard-delete of domain data).
  *
  * AC#2 (provenance + verification gate): `drafAiId` optionally links to a
  * draf_ai. The repo layer rejects a non-null `drafAiId` whose

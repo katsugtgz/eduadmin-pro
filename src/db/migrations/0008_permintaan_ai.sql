@@ -10,7 +10,7 @@
 --                     Creating a permintaan_ai increments terpakai; reject when
 --                     terpakai >= batas (AC#5, enforced in the repo layer).
 --
--- DOMAIN DISTINCTION (CONTEXT.md "Flagged ambiguities"): "Permintaan AI" is the
+-- DOMAIN DISTINCTION (docs/domain-glossary.md "Flagged ambiguities"): "Permintaan AI" is the
 -- process request, "Draf AI" is the draft output that MUST be reviewed, and the
 -- final Dokumen AI still requires Verifikasi Dokumen AI before use. Provenance
 -- (AC#2) on draf_ai records model + prompt_hash + timestamp so AI output is

@@ -16,7 +16,7 @@ export type RoleSlug =
  * `ptk:*` govern PTK (Tenaga Kependidikan) data; `akses:*` govern the Akses
  * (role/permission administration) surface; `peserta_didik:*` govern Peserta
  * Didik (student) data. No `peserta_didik:hapus` — archive, not hard-delete
- * (per CONTEXT.md). `tahun_ajaran:*` govern Tahun Ajaran (academic year)
+ * (per docs/domain-glossary.md). `tahun_ajaran:*` govern Tahun Ajaran (academic year)
  * records; `rombongan_belajar:*` govern Rombongan Belajar (class/homeroom)
  * records including `kelola_penempatan` (placement/progression management).
  * `kurikulum:baca` governs read-only browsing of Kurikulum (curriculum)

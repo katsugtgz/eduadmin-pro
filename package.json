@@ -1,5 +1,5 @@
 {
-  "name": "eduadmin-pro-premium",
+  "name": "eduadmin-pro",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,7 +7,6 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "doctor": "npx -y react-doctor@latest .",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run",

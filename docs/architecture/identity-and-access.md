@@ -4,13 +4,12 @@
 > authorization in EduAdmin Pro Premium.
 >
 > Read this **before** changing anything under auth, organizations, roles,
-> memberships, or session handling. Load the `workos-authkit` OpenCode skill for
+> memberships, or session handling. See the WorkOS AuthKit documentation for
 > WorkOS mechanics; this document defines the project's policy.
 
 ## 1. Why WorkOS was selected
 
-The project's converged architecture (`hyperplan/insights-bundle.md` §A1, §A2)
-requires, non-negotiably:
+The project's converged architecture (§A1, §A2) requires, non-negotiably:
 
 - **Multi-tenancy with M:N user↔tenant membership** (`Keanggotaan Satuan
   Pendidikan`).
@@ -66,7 +65,7 @@ WorkOS AuthKit maps onto this model with almost no impedance mismatch:
   memberships.
 - One person who teaches at two schools is **one** `User` with **two**
   `OrganizationMembership`s — matching the domain glossary's M:N rule
-  (`CONTEXT.md`).
+  (`docs/domain-glossary.md`).
 - `User ↔ Identity` (1:N, verified-email match) from §A2 is satisfied by WorkOS
   user identities; the app does not re-implement identity linking.
 
@@ -81,7 +80,7 @@ WorkOS AuthKit maps onto this model with almost no impedance mismatch:
   requirement + owner approval exists.
 
 > **Do not provision** organizations in the WorkOS dashboard until their meaning
-> is backed by a requirement in `hyperplan/` or `CONTEXT.md`.
+> is backed by a documented requirement (see `docs/domain-glossary.md`).
 
 ## 5. Organization membership model
 
@@ -89,7 +88,7 @@ WorkOS AuthKit maps onto this model with almost no impedance mismatch:
   a `roleSlug` (= `tenant_role`).
 - A `Pengguna` selects an active Satuan Pendidikan (active membership) before
   viewing students, grades, raports, attendance, or teaching devices
-  (`CONTEXT.md` example dialogue). The selected membership's `organization.id`
+  (see `docs/domain-glossary.md`). The selected membership's `organization.id`
   becomes the request's `tenant_id`.
 - M:N is honored: one `User`, many `OrganizationMembership`s; switching active
   school rebinds `tenant_id` for the session.
@@ -98,8 +97,8 @@ WorkOS AuthKit maps onto this model with almost no impedance mismatch:
 
 - `tenant_role` is **never superuser** (§A1 hard constraint). WorkOS `Role`s are
   defined so no role grants cross-tenant or global-admin reach.
-- Concrete role slugs are derived from the source application's persona set
-  (see `scrape/`): **`guru`** (teacher / class teacher / subject teacher),
+- Concrete role slugs are derived from the domain persona set:
+  **`guru`** (teacher / class teacher / subject teacher),
   **`kepala_sekolah`** (head of school), and school-administrative staff
   variants. Exact slug set is finalized during Phase 1/2 implementation; **do
   not provision roles in WorkOS prematurely** — finalize the list from

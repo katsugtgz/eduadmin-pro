@@ -21,7 +21,7 @@ npm run db:seed
 - 6 fase Kurikulum Merdeka (A–F)
 - kurikulum "Kurikulum Merdeka" + capaian_pembelajaran + tujuan_pembelajaran
   (`status_persetujuan = 'memerlukan_tinjauan'` — review-required per
-  CONTEXT.md; AI tidak jadi sumber kanonik)
+  `docs/domain-glossary.md`; AI tidak jadi sumber kanonik)
 
 **2 Satuan Pendidikan demo** (tenant-scoped, RLS WITH CHECK tervalidasi):
 - `org_smp_harapan` — SMP Harapan Bangsa (jenjang SMP, kelas 7–9)
