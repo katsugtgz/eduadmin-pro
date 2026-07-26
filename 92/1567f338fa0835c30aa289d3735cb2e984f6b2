@@ -1,0 +1,186 @@
+src/app/page.test.tsx
+  s_038d67559c775f::t_4f464e721f2bae 16-17
+docs/adr/0004-workos-role-session-strategy.md
+  s_038d67559c775f::t_9eb1e64d93287e 32
+  s_038d67559c775f::t_e7abc437b70864 33,48
+src/db/queries/tingkat.ts
+  s_038d67559c775f::t_43190aeddaa0f6 61
+src/db/queries/kurikulum.test.ts
+  s_038d67559c775f::t_3c3235278a9b5a 83-87
+e2e/mvp-tracer.spec.ts
+  s_038d67559c775f::t_a7f157dd9c6831 6
+  s_038d67559c775f::t_7bc608e062323b 95
+  s_038d67559c775f::t_466ea02ceb77ae 204
+docs/adr/0003-mvp-ai-strategy.md
+  s_038d67559c775f::t_0ef182514a2ffc 242-243
+docs/adr/0005-consent-notification-foundation.md
+  s_038d67559c775f::t_f6c9efb3fc3ed7 223
+  s_038d67559c775f::t_964b9e7422cfaf 280-281
+  s_038d67559c775f::t_0c9b9c0c253628 9-11
+  s_038d67559c775f::t_4656b1635a425f 227
+  s_038d67559c775f::t_77d7dd1321478b 148
+docs/adr/0002-pii-at-rest-strategy.md
+  s_038d67559c775f::t_9cefa79b41e66e 181-182
+docs/adr/0006-rag-help-strategy.md
+  s_038d67559c775f::t_1992f587c19366 13,164,294-295,300
+src/app/dashboard/absensi/actions.ts
+  s_038d67559c775f::t_9ca53f098d9e24 5
+src/app/dashboard/akses/actions.ts
+  s_038d67559c775f::t_91b42e07d3c7b0 5
+src/app/dashboard/bank-soal/actions.ts
+  s_038d67559c775f::t_3454c17b4e9032 5
+src/app/dashboard/beban-mengajar/actions.ts
+  s_038d67559c775f::t_64c4e11ab11cf3 5,32
+src/app/dashboard/cetak/pratinjau/[drafEraportId]/page.tsx
+  s_038d67559c775f::t_502afa98e41883 87
+src/app/dashboard/cetak/pratinjau/[drafEraportId]/pdf/route.ts
+  s_038d67559c775f::t_62d5941c01dc7e 12
+src/app/dashboard/eraport/page.tsx
+  s_038d67559c775f::t_63f8892e08bc7f 22
+src/app/dashboard/impor-peserta-didik/page.test.tsx
+  s_038d67559c775f::t_afc3333f4dcc2b 228,249
+src/app/dashboard/notifikasi/actions.ts
+  s_038d67559c775f::t_9feb3cdfd47421 5
+src/app/dashboard/penilaian/actions.ts
+  s_038d67559c775f::t_ddbcd69e23b6b0 5
+src/app/dashboard/perangkat-ajar/actions.ts
+  s_038d67559c775f::t_a280ae566a7a71 5
+src/app/dashboard/permintaan-ai/actions.ts
+  s_038d67559c775f::t_87f41c37d80f92 5
+src/app/dashboard/permintaan-ai/page.tsx
+  s_038d67559c775f::t_9cfa84ed7f6bc0 28
+src/app/dashboard/rombongan-belajar/actions.test.ts
+  s_038d67559c775f::t_84de219938137d 195
+src/app/dashboard/rombongan-belajar/actions.ts
+  s_038d67559c775f::t_928aa0124beeff 5
+src/db/absensi.test.ts
+  s_038d67559c775f::t_8a2b7826279de2 80
+src/db/akses.test.ts
+  s_038d67559c775f::t_dfae068f7e77b9 32
+src/db/beban-mengajar.test.ts
+  s_038d67559c775f::t_059a6968a0aa80 84
+src/db/kurikulum.test.ts
+  s_038d67559c775f::t_b5dbc7d2cd52fa 115-119
+src/db/migrations/0001_akses_ptk.sql
+  s_038d67559c775f::t_749b755412a07c 2
+src/db/migrations/0002_peserta_didik.sql
+  s_038d67559c775f::t_94afd891279da6 2
+src/db/migrations/0003_rombongan_belajar.sql
+  s_038d67559c775f::t_efd856f79f9e9f 2
+src/db/migrations/0006_beban_mengajar.sql
+  s_038d67559c775f::t_40738d004e6071 2
+src/db/migrations/0007_penilaian.sql
+  s_038d67559c775f::t_25a9736f37e5d4 2
+src/db/migrations/0008_permintaan_ai.sql
+  s_038d67559c775f::t_a87ce7cc376971 2
+src/db/migrations/0009_absensi_harian.sql
+  s_038d67559c775f::t_69b9db7fe9ed60 2
+src/db/migrations/0010_bank_soal.sql
+  s_038d67559c775f::t_7398897f611d8b 2
+src/db/penilaian.test.ts
+  s_038d67559c775f::t_1dd255c44ce6ed 84
+src/db/permintaan-ai.test.ts
+  s_038d67559c775f::t_1860082c4f8e9b 79
+src/db/peserta-didik.test.ts
+  s_038d67559c775f::t_a2568e5b11f121 70
+src/db/queries/absensi.test.ts
+  s_038d67559c775f::t_18a7103c0bb472 50
+src/db/queries/absensi.ts
+  s_038d67559c775f::t_8d4142f51ed40d 4
+src/db/queries/akses.test.ts
+  s_038d67559c775f::t_736a02b7cf501f 44
+src/db/queries/bank-soal.test.ts
+  s_038d67559c775f::t_6a7ac0f77a7bca 56
+src/db/queries/bank-soal.ts
+  s_038d67559c775f::t_e269c854d274f2 2,5
+src/db/queries/beban-mengajar.test.ts
+  s_038d67559c775f::t_79a379f260eb1f 49
+src/db/queries/draf-ai.test.ts
+  s_038d67559c775f::t_fbe2024fde62b6 80
+src/db/queries/draf-ai.ts
+  s_038d67559c775f::t_153b12ef85def0 4
+src/db/queries/eraport.test.ts
+  s_038d67559c775f::t_2a39dd99a2adff 77
+src/db/queries/eraport.ts
+  s_038d67559c775f::t_305b95c791c429 4
+src/db/queries/komponen-nilai.test.ts
+  s_038d67559c775f::t_212a36aa9f5473 48
+src/db/queries/kontak-peserta-didik.test.ts
+  s_038d67559c775f::t_26fce6172eaf7b 42
+src/db/queries/kuota-ai.test.ts
+  s_038d67559c775f::t_539f48b6b5422f 43
+src/db/queries/kuota-ai.ts
+  s_038d67559c775f::t_8d81bd497c6e27 4
+src/db/queries/mutasi-peserta-didik.test.ts
+  s_038d67559c775f::t_3399c254698b8d 41
+src/db/queries/mutasi-peserta-didik.ts
+  s_038d67559c775f::t_80c8eb50e95e65 4,9-10
+src/db/queries/nilai-peserta-didik.test.ts
+  s_038d67559c775f::t_50be3c05bef9b3 48
+src/db/queries/notifikasi.test.ts
+  s_038d67559c775f::t_6171784ef8faa3 48
+src/db/queries/notifikasi.ts
+  s_038d67559c775f::t_526aad04247db0 4
+src/db/queries/penempatan-rombongan-belajar.test.ts
+  s_038d67559c775f::t_9e4f23b9684615 43
+src/db/queries/penempatan-rombongan-belajar.ts
+  s_038d67559c775f::t_f677f62d7f3ac1 4
+src/db/queries/penilaian.test.ts
+  s_038d67559c775f::t_8478b95c47e662 42
+src/db/queries/perangkat-ajar.ts
+  s_038d67559c775f::t_62a8a6edc8bac9 4
+src/db/queries/permintaan-ai.test.ts
+  s_038d67559c775f::t_2ffefcf05cfe39 41
+src/db/queries/permintaan-ai.ts
+  s_038d67559c775f::t_b2de1023d4336d 4
+src/db/queries/peserta-didik.test.ts
+  s_038d67559c775f::t_4fef4e68814e5b 39
+src/db/queries/peserta-didik.ts
+  s_038d67559c775f::t_2876036bcca515 4
+src/db/queries/rombongan-belajar.test.ts
+  s_038d67559c775f::t_9dac56e12f6716 46
+src/db/queries/rombongan-belajar.ts
+  s_038d67559c775f::t_6abbb17a685ee2 4,90
+src/db/queries/tahun-ajaran.test.ts
+  s_038d67559c775f::t_c48f48ba5702aa 31
+src/db/queries/tingkat.test.ts
+  s_038d67559c775f::t_86ccbf669e7da5 36
+src/db/queries/wali-kelas.test.ts
+  s_038d67559c775f::t_a5953f82a9da8d 49
+src/db/queries/wali-kelas.ts
+  s_038d67559c775f::t_cbe858c6132051 4
+src/db/rombongan-belajar.test.ts
+  s_038d67559c775f::t_46f4442f4679cf 70
+src/lib/absensi/qr-pemindai.test.ts
+  s_038d67559c775f::t_9cd94dd0b21acd 13
+src/lib/absensi/qr-pemindai.ts
+  s_038d67559c775f::t_5413085d0cbb37 3
+src/lib/auth/akses-saya.ts
+  s_038d67559c775f::t_9351640eca4aa0 21-22,54-55,57
+src/lib/offline/README.md
+  s_038d67559c775f::t_949bb77b80242e 28,88,116
+src/lib/offline/guard.test.ts
+  s_038d67559c775f::t_1ac87d77bb6121 12,17,33,35,58-59,64,69,124
+src/lib/offline/guard.ts
+  s_038d67559c775f::t_dfa6269029816b 7,70
+src/lib/pdf/minimal-pdf.test.ts
+  s_038d67559c775f::t_d26a685567de6b 121,163
+src/lib/pdf/minimal-pdf.ts
+  s_038d67559c775f::t_db603bdcb6fddc 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "921567f338fa0835c30aa289d3735cb2e984f6b2",
+  "prompts": {},
+  "sessions": {
+    "s_038d67559c775f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8ac43211-929f-4887-90cb-9d4473d7cf07",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Muhammad Naufal Mahdi <053792227@ecampus.ut.ac.id>"
+    }
+  }
+}
