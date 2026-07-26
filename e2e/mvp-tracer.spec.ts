@@ -64,15 +64,15 @@ import { ConsoleGuard } from "./lib/console-guard";
 const E2E_AUTH_EMAIL = process.env.E2E_AUTH_EMAIL;
 const E2E_AUTH_PASSWORD = process.env.E2E_AUTH_PASSWORD;
 
-const EVIDENCE_DIR = ".omo/evidence";
+const EVIDENCE_DIR = "test-results/evidence";
 
 /**
  * Smoke test — always runs and is always green when the app is up.
  *
  * Purpose: prove the Playwright ↔ webServer (`npm run dev`) ↔ Next.js wiring
- * works, and produce evidence artifacts (`task-9-smoke.png`,
- * `task-9-console-error.log`) even when the gated tracer is skipped. This is
- * what makes the spec exit 0 locally regardless of auth provisioning.
+ * works, and capture a screenshot artifact even when the gated tracer is
+ * skipped. This is what makes the spec exit 0 locally regardless of auth
+ * provisioning.
  */
 test("smoke: dev server /health is up (always-green wiring proof)", async ({
   page,
