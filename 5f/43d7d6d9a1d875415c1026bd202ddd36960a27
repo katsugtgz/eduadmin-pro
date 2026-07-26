@@ -1,0 +1,20 @@
+e2e/mvp-tracer.spec.ts
+  s_038d67559c775f::t_758cc7bab2b5ae 73-75
+  s_038d67559c775f::t_5d79f4b3354306 67
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "5f43d7d6d9a1d875415c1026bd202ddd36960a27",
+  "prompts": {},
+  "sessions": {
+    "s_038d67559c775f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8ac43211-929f-4887-90cb-9d4473d7cf07",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Muhammad Naufal Mahdi <053792227@ecampus.ut.ac.id>"
+    }
+  }
+}
