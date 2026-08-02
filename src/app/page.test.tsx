@@ -35,14 +35,21 @@ describe("BerandaPage (landing)", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders every MVP module as a card with a dashboard link", () => {
+  it("routes every MVP module card to its matching module", () => {
     render(<BerandaPage />);
 
-    // MVP_MODULES has 7 entries; each card exposes an aria-label "Buka <nama>".
-    const moduleLinks = screen.getAllByRole("link", { name: /^buka /i });
-    expect(moduleLinks).toHaveLength(7);
-    moduleLinks.forEach((link) => {
-      expect(link).toHaveAttribute("href", "/dashboard");
-    });
+    const expectedRoutes = new Map([
+      ["Buka Profil Saya", "/dashboard/pengaturan"],
+      ["Buka Pengaturan Sekolah", "/dashboard/pengaturan"],
+      ["Buka Peserta Didik", "/dashboard/peserta-didik"],
+      ["Buka Input Nilai & E-Raport", "/dashboard/penilaian"],
+      ["Buka Bank Soal", "/dashboard/bank-soal"],
+      ["Buka Perangkat Ajar", "/dashboard/perangkat-ajar"],
+      ["Buka Absensi QR", "/dashboard/absensi"],
+    ]);
+
+    for (const [name, href] of expectedRoutes) {
+      expect(screen.getByRole("link", { name })).toHaveAttribute("href", href);
+    }
   });
 });

@@ -18,6 +18,7 @@ type Modul = {
   nama: string;
   deskripsi: string;
   ikon: React.ComponentType<{ className?: string }>;
+  href: string;
   featured?: boolean;
 };
 
@@ -26,38 +27,45 @@ const MVP_MODULES: Modul[] = [
     nama: "Profil Saya",
     deskripsi: "Data pengguna dan kepegawaian Anda.",
     ikon: GraduationCap,
+    href: "/dashboard/pengaturan",
   },
   {
     nama: "Pengaturan Sekolah",
     deskripsi: "Identitas dan konfigurasi Satuan Pendidikan.",
     ikon: ShieldCheck,
+    href: "/dashboard/pengaturan",
   },
   {
     nama: "Peserta Didik",
     deskripsi:
       "Peserta Didik, Rombongan Belajar, dan mutasi. Kelola data demografi Peserta Didik secara terpusat.",
     ikon: Users,
+    href: "/dashboard/peserta-didik",
     featured: true,
   },
   {
     nama: "Input Nilai & E-Raport",
     deskripsi: "Penilaian, Nilai Akhir, dan cetak E-Raport.",
     ikon: BookText,
+    href: "/dashboard/penilaian",
   },
   {
     nama: "Bank Soal",
     deskripsi: "Bank soal dengan komposisi dan taksonomi.",
     ikon: LayoutGrid,
+    href: "/dashboard/bank-soal",
   },
   {
     nama: "Perangkat Ajar",
     deskripsi: "Modul Ajar, ATP, dan bahan ajar terpadu.",
     ikon: Compass,
+    href: "/dashboard/perangkat-ajar",
   },
   {
     nama: "Absensi QR",
     deskripsi: "Absensi Peserta Didik lewat pemindaian QR.",
     ikon: QrCode,
+    href: "/dashboard/absensi",
   },
 ];
 
@@ -131,7 +139,7 @@ export default function BerandaPage() {
           </div>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-xs font-medium text-muted-foreground">
             <ShieldCheck className="h-3.5 w-3.5 text-accent" aria-hidden="true" />
-            Segera hadir
+            7 modul aktif
           </span>
         </PageReveal>
 
@@ -149,7 +157,7 @@ export default function BerandaPage() {
                   }`}
                 >
                   <Link
-                    href="/dashboard"
+                    href={modul.href}
                     aria-label={`Buka ${modul.nama}`}
                     className="absolute inset-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
