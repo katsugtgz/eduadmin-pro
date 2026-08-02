@@ -1,0 +1,114 @@
+src/app/dashboard/beban-mengajar/actions.ts
+  s_fd82e9d224f9e8::t_fa79ea75f4d1ec 217-219
+  s_fd82e9d224f9e8::t_6aceac2bbf3883 220-225
+src/app/dashboard/bank-soal/actions.ts
+  s_87794dc5826382::t_f23bc17c15f961 166-173
+  s_87794dc5826382::t_7e77c47da775b1 241-247
+  s_87794dc5826382::t_98f6a52715993e 479-505,507-509,511
+src/lib/offline/store.test.ts
+  s_fd82e9d224f9e8::t_3cd6e8bc9d60d5 66,69-71,73-120
+src/db/queries/perangkat-ajar.ts
+  s_20446134d21542::t_bd0ad907e76344 199-203
+  s_20446134d21542::t_a73db56e840f8e 217-219,224,227-229,231-236
+src/db/queries/kuota-ai.ts
+  s_e9429f109a6854::t_2e15127e83a8bf 105-119,132-133,139
+  s_e9429f109a6854::t_ec8010b03a5d82 11-23
+src/db/queries/draf-ai.ts
+  s_20446134d21542::t_49ae3c95668f7b 114,121,123-128
+  s_20446134d21542::t_529d159900ce16 26,91-95
+src/db/queries/perangkat-ajar.test.ts
+  s_20446134d21542::t_3d6d0d9a06c18c 413-414,419
+  s_20446134d21542::t_726e28d6a453e5 552-612
+src/app/dashboard/pengaturan/schemas.ts
+  s_fd82e9d224f9e8::t_5f641b4b153434 16
+src/db/queries/eraport.ts
+  s_20446134d21542::t_fb63d563bdfea5 30,182-186
+  s_20446134d21542::t_6de3957c2481be 203,206,208-213
+src/app/dashboard/bank-soal/actions.test.ts
+  s_87794dc5826382::t_27ef04c19f9b01 787-846
+src/app/dashboard/beban-mengajar/actions.test.ts
+  s_fd82e9d224f9e8::t_fcf659c603b13a 553-595,611-613
+  s_fd82e9d224f9e8::t_9e3f0cc581028f 596-610
+src/lib/offline/store.ts
+  s_fd82e9d224f9e8::t_82fbc836c1452c 117-121,124-128,130,136-137,145-148,152-156,158,166-168
+  s_fd82e9d224f9e8::t_6f6f40e93713c1 49-52,54-62
+src/app/dashboard/permintaan-ai/actions.ts
+  s_e9429f109a6854::t_52ea8857f36015 90-94,96-98
+  s_e9429f109a6854::t_55ee5f0eb72d3d 133-134
+  s_e9429f109a6854::t_65ce4a335ff1e1 116-118
+src/app/dashboard/pengaturan/schemas.test.ts
+  s_fd82e9d224f9e8::t_e1572540e73eda 54-109
+src/app/dashboard/absensi/actions.ts
+  s_fd82e9d224f9e8::t_f4f5a92671b93b 67-86
+  s_fd82e9d224f9e8::t_de8210622f2657 165,167-173
+  s_fd82e9d224f9e8::t_10f51eb6c97029 30-31
+src/app/dashboard/cetak/actions.ts
+  s_fd82e9d224f9e8::t_9b429e6492d5a0 146,148-151
+src/app/dashboard/cetak/actions.test.ts
+  s_fd82e9d224f9e8::t_77d0e4eb214f9a 277-366
+src/db/queries/draf-ai.test.ts
+  s_20446134d21542::t_27eb05baf60a67 367-410
+src/app/dashboard/absensi/actions.test.ts
+  s_fd82e9d224f9e8::t_6284aeba3512f9 84-100
+  s_fd82e9d224f9e8::t_b48128bb16f851 116
+  s_fd82e9d224f9e8::t_86098f89228bfb 131-132
+  s_fd82e9d224f9e8::t_ae44214d7cecf0 265-266,274-279,281-288
+  s_fd82e9d224f9e8::t_33c848c597680e 101-115
+  s_fd82e9d224f9e8::t_a335feeddcb1da 740-745
+  s_87794dc5826382::t_0b81a72ee4b356 796-801
+  s_fd82e9d224f9e8::t_24c635d7743872 819-930
+  s_fd82e9d224f9e8::t_0199aa52e3b640 160-163
+src/db/schema.ts
+  s_e9429f109a6854::t_cf8dfa622f3c2e 1078-1096,1118
+src/db/queries/eraport.test.ts
+  s_20446134d21542::t_db9015cc82f237 519-562
+src/app/api/sinkronisasi/route.ts
+  s_87794dc5826382::t_4705ea1107f544 157-170
+  s_87794dc5826382::t_a8e6e8daeb020b 273-283
+src/db/queries/kuota-ai.test.ts
+  s_e9429f109a6854::t_49db955e06805f 308-309,312
+  s_e9429f109a6854::t_5adf34a27cc983 207-216,220,222-223,226-232,234-242
+  s_e9429f109a6854::t_5e6312adb7c744 247-250,263
+src/app/api/sinkronisasi/route.test.ts
+  s_87794dc5826382::t_53203753218a24 433-536
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "74fe5c815e0609af61e0b9fbc5747961fc72c22d",
+  "prompts": {},
+  "sessions": {
+    "s_20446134d21542": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_03c7134d6ffeFTJ3G6Fx9MnDKQ",
+        "model": "glm-5.2"
+      },
+      "human_author": null
+    },
+    "s_87794dc5826382": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_03c713494ffefNKHbrLGU67weC",
+        "model": "glm-5.2"
+      },
+      "human_author": "Muhammad Naufal Mahdi <053792227@ecampus.ut.ac.id>"
+    },
+    "s_e9429f109a6854": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_03c7134bfffekTtEAZyPptjc1G",
+        "model": "glm-5.2"
+      },
+      "human_author": null
+    },
+    "s_fd82e9d224f9e8": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_03c71346fffe91ol1mm7vLBUg5",
+        "model": "glm-5.2"
+      },
+      "human_author": "Muhammad Naufal Mahdi <053792227@ecampus.ut.ac.id>"
+    }
+  }
+}
