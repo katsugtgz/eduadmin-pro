@@ -163,9 +163,14 @@ export async function buatButirSoalAction(formData: FormData): Promise<void> {
   const pembahasanRaw = String(formData.get("pembahasan") ?? "").trim();
   const pembahasan = pembahasanRaw || null;
   const pilihanRaw = String(formData.get("pilihan") ?? "").trim();
-  const pilihan = pilihanRaw
-    ? JSON.parse(pilihanRaw) as unknown
-    : null;
+  let pilihan: unknown = null;
+  if (pilihanRaw) {
+    try {
+      pilihan = JSON.parse(pilihanRaw);
+    } catch {
+      throw new Error("Pilihan bukan JSON yang valid.");
+    }
+  }
   const drafAiIdRaw = String(formData.get("drafAiId") ?? "").trim();
   const drafAiId = drafAiIdRaw || null;
 
@@ -233,7 +238,13 @@ export async function ubahButirSoalAction(formData: FormData): Promise<void> {
   if (formData.has("pembahasan"))
     perubahan.pembahasan = pembahasanRaw || null;
   const pilihanRaw = String(formData.get("pilihan") ?? "").trim();
-  if (pilihanRaw) perubahan.pilihan = JSON.parse(pilihanRaw) as unknown;
+  if (pilihanRaw) {
+    try {
+      perubahan.pilihan = JSON.parse(pilihanRaw);
+    } catch {
+      throw new Error("Pilihan bukan JSON yang valid.");
+    }
+  }
 
   const { db } = getDb();
   await withTenant(db, akses.membership.orgId, async (tx) => {
@@ -465,44 +476,39 @@ export async function imporButirSoalJsonAction(
   let gagal = parsed.length - kandidat.length;
   const { db } = getDb();
   await withTenant(db, akses.membership.orgId, async (tx) => {
-    const hasilSimpan = await Promise.all(
-      kandidat.map(async (item) => {
-        try {
-          const butir = await buatButirSoal(tx, {
-            mataPelajaranId: item.mataPelajaranId,
-            tingkatId: item.tingkatId,
-            jenis: item.jenis,
-            pertanyaan: item.pertanyaan,
-            pilihan: item.pilihan,
-            kunciJawaban: item.kunciJawaban,
-            pembahasan: item.pembahasan,
-            dibuatOleh: akses.userId,
-          });
-          await catatAudit(tx, {
-            aktor: akses.userId,
-            aksi: "impor-ai-eksternal",
-            target: `butir_soal:${butir.id}`,
-            beban: {
-              provenance: `eksternal-pengguna:${akses.userId}:${item.jenis}:${new Date().toISOString()}`,
-            },
-          });
-          return { ok: true as const };
-        } catch (error) {
-          const detail =
-            error instanceof Error ? error.message : "kesalahan basis data";
-          return {
-            ok: false as const,
-            error: `Butir ${item.nomor}: gagal disimpan (${detail}).`,
-          };
-        }
-      })
-    );
-    for (const hasil of hasilSimpan) {
-      if (hasil.ok) {
+    // SEQUENTIAL — Drizzle/node-postgres transactions are single-connection: a
+    // failed query poisons the tx ("current transaction is aborted"), so a
+    // concurrent Promise.all over the same tx makes every sibling item fail
+    // with the cascade abort error and the catch swallows each, leaving
+    // tersimpan=0. Iterate in order; items before a failure still commit,
+    // the failing item captures its REAL error, and audit ordering is
+    // deterministic.
+    for (const item of kandidat) {
+      try {
+        const butir = await buatButirSoal(tx, {
+          mataPelajaranId: item.mataPelajaranId,
+          tingkatId: item.tingkatId,
+          jenis: item.jenis,
+          pertanyaan: item.pertanyaan,
+          pilihan: item.pilihan,
+          kunciJawaban: item.kunciJawaban,
+          pembahasan: item.pembahasan,
+          dibuatOleh: akses.userId,
+        });
+        await catatAudit(tx, {
+          aktor: akses.userId,
+          aksi: "impor-ai-eksternal",
+          target: `butir_soal:${butir.id}`,
+          beban: {
+            provenance: `eksternal-pengguna:${akses.userId}:${item.jenis}:${new Date().toISOString()}`,
+          },
+        });
         tersimpan += 1;
-      } else {
+      } catch (error) {
+        const detail =
+          error instanceof Error ? error.message : "kesalahan basis data";
         gagal += 1;
-        errors.push(hasil.error);
+        errors.push(`Butir ${item.nomor}: gagal disimpan (${detail}).`);
       }
     }
   });

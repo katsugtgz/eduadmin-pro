@@ -87,9 +87,15 @@ function jalankanMockAi(jenis: JenisPermintaanAi): {
  *
  * Order matters and is load-bearing:
  *   1. resolve Tahun Ajaran aktif + Semester aktif (both required)
- *   2. AC#5 — read kuota `tersisa`; reject BEFORE processing when <= 0
+ *   2. AC#5 — read kuota `tersisa`; reject BEFORE processing when <= 0. This is
+ *      a UX FAST-PATH only (cheap reject before any state-machine work); the
+ *      authoritative, TOCTOU-safe gate is the conditional UPDATE inside
+ *      `tambahPemakaianKuota` (step 4), backed by the
+ *      `kuota_ai_terpakai_batas_check` CHECK.
  *   3. AC#1 — insert permintaan_ai (status='dibuat'), then diproses, then selesai
- *   4. AC#5 — increment terpakai (only after the gate passed)
+ *   4. AC#5 — increment terpakai via the atomic conditional UPDATE; this is the
+ *      source of truth — 0 rows => throws "Kuota AI habis." (closes the TOCTOU
+ *      window the early read alone left open under READ COMMITTED).
  *   5. AC#2 — run mock AI + store draf with provenance (status_verifikasi='menunggu')
  *   6. catatAudit
  */
@@ -107,7 +113,9 @@ async function prosesPermintaanAi(
   const semester = await getSemesterAktif(tx);
   if (!semester) throw new Error("Semester aktif belum diatur.");
 
-  // 2. AC#5 budget gate — checked BEFORE any processing / increment.
+  // 2. AC#5 UX fast-path — cheap reject BEFORE any processing. The
+  //    authoritative, TOCTOU-safe gate is the conditional UPDATE in
+  //    tambahPemakaianKuota (step 4) + the kuota_ai_terpakai_batas_check.
   const kuota = await getAtauBuatKuotaAi(tx, ta.id, semester);
   if (kuota.tersisa <= 0) {
     throw new Error("Kuota AI untuk semester ini habis.");
@@ -122,7 +130,8 @@ async function prosesPermintaanAi(
     permintaanTerkaitId,
   });
 
-  // 4. AC#5 increment (only after the gate above passed).
+  // 4. AC#5 atomic gate — conditional UPDATE (terpakai < batas) inside the
+  //    repo; 0 rows => throws "Kuota AI habis." (TOCTOU-safe source of truth).
   await tambahPemakaianKuota(tx, ta.id, semester);
   await ubahStatusPermintaanAi(tx, permintaan.id, "diproses");
 

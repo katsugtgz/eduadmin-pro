@@ -196,6 +196,11 @@ export async function listByJenis(
  * (RLS cross-tenant or missing id) AND when the row is not AI-assisted
  * (`statusDokumenAi` is NULL — nothing to verify) — a silent no-op would mask
  * the fact that only AI-assisted docs go through this gate.
+ *
+ * TOCTOU guard: the UPDATE is scoped with a compound WHERE
+ * `(id AND statusDokumenAi='menunggu')` so a concurrent verification that
+ * flips the status between the SELECT and the UPDATE yields 0 updated rows —
+ * the function then throws rather than silently overwriting the verdict.
  */
 export async function verifikasiDokumenAi(
   db: Db | Tx,
@@ -209,14 +214,24 @@ export async function verifikasiDokumenAi(
   if (existing.length === 0) {
     throw new Error("Perangkat Ajar tidak ditemukan");
   }
+  if (existing[0].statusDokumenAi === null) {
+    throw new Error("Dokumen bukan AI-assisted");
+  }
   if (existing[0].statusDokumenAi !== "menunggu") {
     throw new Error("Dokumen AI sudah diverifikasi");
   }
 
-  const [row] = await db
+  const updated = await db
     .update(perangkatAjar)
     .set({ statusDokumenAi: keputusan })
-    .where(eq(perangkatAjar.id, id))
+    .where(
+      and(eq(perangkatAjar.id, id), eq(perangkatAjar.statusDokumenAi, "menunggu"))
+    )
     .returning();
-  return row;
+  // TOCTOU guard: 0 rows means the row left 'menunggu' between the SELECT and
+  // this UPDATE (concurrent verification) — refuse rather than overwrite.
+  if (updated.length === 0) {
+    throw new Error("Dokumen AI sudah diverifikasi");
+  }
+  return updated[0];
 }

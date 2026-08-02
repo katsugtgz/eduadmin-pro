@@ -143,8 +143,12 @@ export async function buatDokumenCetakAction(
     String(formData.get("tandaTanganNama") ?? "").trim() || null;
   const tandaTanganPeran =
     String(formData.get("tandaTanganPeran") ?? "").trim() || null;
-  const stempelUrl =
+  const stempelUrlRaw =
     String(formData.get("stempelUrl") ?? "").trim() || null;
+  if (stempelUrlRaw !== null && !/^https:\/\/.+/.test(stempelUrlRaw)) {
+    throw new Error("URL Stempel harus https.");
+  }
+  const stempelUrl = stempelUrlRaw;
 
   const { db } = getDb();
   await withTenant(db, akses.membership.orgId, async (tx) => {

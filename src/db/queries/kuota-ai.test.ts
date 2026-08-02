@@ -204,32 +204,50 @@ describeOrSkip(
       expect(after3).toEqual(final);
     });
 
-    // 4. AC#5 repo does NOT enforce the budget gate: tambahPemakaianKuota
-    //    will happily increment past `batas` if invoked. The action layer is
-    //    responsible for checking `tersisa > 0` first. (Negative tersisa is
-    //    observable — proves the repo is a dumb primitive.)
-    itOrSkip("tambahPemakaianKuota does NOT enforce batas (action-layer gate)", async () => {
-      const { overInfo } = await withTenant(db, SEED_A, async (tx) => {
+    // 4. AC#5 atomic enforcement: tambahPemakaianKuota is a conditional UPDATE
+    //    (`SET terpakai = terpakai + 1 WHERE terpakai < batas`). The last legal
+    //    increment lands terpakai exactly on batas (tersisa=0). The next call
+    //    matches 0 rows and throws "Kuota AI habis." — terpakai can NEVER exceed
+    //    batas. The row lock the UPDATE takes serializes concurrent increments
+    //    under READ COMMITTED, closing the TOCTOU window the old read-then-write
+    //    gate left open. (The schema `kuota_ai_terpakai_batas_check` is the DB
+    //    backstop — even a buggy caller cannot violate terpakai <= batas.)
+    itOrSkip("tambahPemakaianKuota enforces batas atomically (TOCTOU-safe)", async () => {
+      const { taId } = await withTenant(db, SEED_A, async (tx) => {
         const ta = await seedTahunAjaran(tx, SEED_A, "over");
         await getAtauBuatKuotaAi(tx, ta.id, "ganjil", 1); // batas=1
 
-        // First increment: terpakai=1, tersisa=0 (legal).
+        // First increment: terpakai=0 < batas=1 => 1 row updated, tersisa=0.
         const atLimit = await tambahPemakaianKuota(tx, ta.id, "ganjil");
+        expect(atLimit.terpakai).toBe(1);
+        expect(atLimit.batas).toBe(1);
         expect(atLimit.tersisa).toBe(0);
 
-        // Second increment: repo does NOT reject — terpakai=2, tersisa=-1.
-        // Action layer should have checked `tersisa > 0` before calling.
-        const overInfo = await tambahPemakaianKuota(tx, ta.id, "ganjil");
-        expect(overInfo.terpakai).toBe(2);
-        expect(overInfo.tersisa).toBe(-1);
-        return { overInfo };
+        // Second increment: terpakai=1 < batas=1 is FALSE => 0 rows updated =>
+        // throws. terpakai stays at 1 (never exceeds batas).
+        await expect(
+          tambahPemakaianKuota(tx, ta.id, "ganjil")
+        ).rejects.toThrow(/Kuota AI habis/i);
+
+        return { taId: ta.id };
       });
-      expect(overInfo.tersisa).toBe(-1);
+
+      // Final state: terpakai capped at batas=1, NOT 2.
+      const final = await withTenant(db, SEED_A, (tx) =>
+        getKuotaAi(tx, taId, "ganjil")
+      );
+      expect(final).not.toBeNull();
+      expect(final!.terpakai).toBe(1);
+      expect(final!.batas).toBe(1);
+      expect(final!.tersisa).toBe(0);
     });
 
     // 5. getKuotaAi returns null when no row exists (absence == absence; the
     //    action layer decides unlimited vs batas=0). tambahPemakaianKuota on a
-    //    missing row throws (caller must getAtauBuatKuotaAi first).
+    //    missing row matches 0 rows in the conditional UPDATE and throws
+    //    "Kuota AI habis." (the same message as the exhausted case — the action
+    //    layer always calls getAtauBuatKuotaAi first, so a missing row is a
+    //    deny, not a normal path).
     itOrSkip("getKuotaAi returns null when absent; tambahPemakaianKuota throws on missing", async () => {
       const ta = await withTenant(db, SEED_A, async (tx) =>
         seedTahunAjaran(tx, SEED_A, "missing")
@@ -242,7 +260,7 @@ describeOrSkip(
 
       await expect(
         withTenant(db, SEED_A, (tx) => tambahPemakaianKuota(tx, ta.id, "ganjil"))
-      ).rejects.toThrow(/tidak ditemukan/);
+      ).rejects.toThrow(/Kuota AI habis/i);
     });
 
     // 6. §13 RLS isolation: SEED_B cannot read SEED_A's kuota via getKuotaAi.
@@ -287,11 +305,11 @@ describeOrSkip(
       );
       expect(aReadsB).toBeNull();
 
-      // tambahPemakaianKuota from SEED_B on SEED_A's row throws (RLS hides it
-      // -> zero rows updated -> repo throws "tidak ditemukan").
+      // tambahPemakaianKuota from SEED_B on SEED_A's row matches 0 rows (RLS
+      // hides it) => throws "Kuota AI habis." (same 0-row path as exhaustion).
       await expect(
         withTenant(db, SEED_B, (tx) => tambahPemakaianKuota(tx, aTaId, "ganjil"))
-      ).rejects.toThrow(/tidak ditemukan/);
+      ).rejects.toThrow(/Kuota AI habis/i);
 
       // SEED_A's terpakai is still 1 (B's increment was rejected).
       const aAfter = await withTenant(db, SEED_A, (tx) =>

@@ -516,3 +516,47 @@ describeOrSkip(
     });
   }
 );
+
+// 11. TOCTOU race guard (mock-based — no DB required, always runs). The
+//     conditional UPDATE WHERE `(id AND status<>'terbit')` makes a concurrent
+//     terbit observable: when returning() yields 0 rows the function THROWS
+//     instead of silently re-stamping diterbitkanPada.
+describe("terbitkanEraport TOCTOU race guard (queries/eraport.ts)", () => {
+  /** Minimal Tx stub returning controlled arrays (no DB touched). */
+  function makeMockTx(opts: {
+    readonly selectResult: readonly unknown[];
+    readonly updateResult: readonly unknown[];
+    readonly onUpdateWhere?: (cond: unknown) => void;
+  }): Tx {
+    return {
+      select: () => ({
+        from: () => ({ where: async () => [...opts.selectResult] }),
+      }),
+      update: () => ({
+        set: () => ({
+          where: (cond: unknown) => {
+            opts.onUpdateWhere?.(cond);
+            return { returning: async () => [...opts.updateResult] };
+          },
+        }),
+      }),
+    } as unknown as Tx;
+  }
+
+  it("throws when UPDATE matches 0 rows (row reached 'terbit' mid-call)", async () => {
+    const captured: unknown[] = [];
+    const mockTx = makeMockTx({
+      selectResult: [{ id: "race-e", status: "draf" }],
+      updateResult: [],
+      onUpdateWhere: (cond) => {
+        captured.push(cond);
+      },
+    });
+
+    await expect(terbitkanEraport(mockTx, "race-e")).rejects.toThrow(
+      /sudah diterbitkan/
+    );
+    expect(captured).toHaveLength(1);
+    expect(captured[0]).toBeDefined();
+  });
+});

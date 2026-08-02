@@ -23,7 +23,7 @@
  * transaction; the action layer catches the constraint violation to convert a
  * duplicate insert into a 409/idempotent retry.
  */
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import type { Db, Tx } from "../client";
 import { drafAi } from "../schema";
@@ -88,6 +88,11 @@ export async function cariDrafAiByPermintaan(
  * (cannot re-verify) rather than silently rewriting the verdict. Also throws
  * when the row is absent (RLS cross-tenant or missing id) — a silent no-op
  * would mask failure for the action layer.
+ *
+ * TOCTOU guard: the UPDATE is scoped with a compound WHERE
+ * `(id AND statusVerifikasi='menunggu')` so a concurrent verification that
+ * flips the status between the SELECT and the UPDATE yields 0 updated rows —
+ * the function then throws rather than silently overwriting the verdict.
  */
 export async function verifikasiDrafAi(
   db: Db | Tx,
@@ -106,14 +111,19 @@ export async function verifikasiDrafAi(
     throw new Error("Draf AI sudah diverifikasi");
   }
 
-  const [row] = await db
+  const updated = await db
     .update(drafAi)
     .set({
       statusVerifikasi: status,
       diverifikasiOleh,
       diverifikasiPada: new Date(),
     })
-    .where(eq(drafAi.id, id))
+    .where(and(eq(drafAi.id, id), eq(drafAi.statusVerifikasi, "menunggu")))
     .returning();
-  return row;
+  // TOCTOU guard: 0 rows means the row left 'menunggu' between the SELECT and
+  // this UPDATE (concurrent verification) — refuse rather than overwrite.
+  if (updated.length === 0) {
+    throw new Error("Draf AI sudah diverifikasi");
+  }
+  return updated[0];
 }

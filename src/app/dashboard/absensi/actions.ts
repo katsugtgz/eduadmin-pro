@@ -27,6 +27,8 @@ import { catatAudit, getDb, withTenant } from "@/db/client";
 import { catatAbsensi, ubahAbsensi } from "@/db/queries/absensi";
 import type { MetodeInput, StatusKehadiran } from "@/db/queries/absensi";
 import { listPenempatanByPesertaDidik } from "@/db/queries/penempatan-rombongan-belajar";
+import type { Semester } from "@/db/queries/penempatan-rombongan-belajar";
+import { getSemesterAktif, getTahunAjaranAktif } from "@/db/queries/tahun-ajaran";
 import { getAksesSaya } from "@/lib/auth/akses-saya";
 import {
   assertPemilikRombongan,
@@ -60,6 +62,26 @@ function isValidMetode(s: string): s is MetodeInput {
  */
 function isIsoDateShape(s: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(s);
+}
+
+/**
+ * Resolve the active academic period SERVER-SIDE (AC#4 — the active period is
+ * the single source of truth, never trusted from formData). Throws Bahasa when
+ * either is unset. Mirrors beban-mengajar/actions.ts.
+ */
+async function resolvePeriodAktif(tx: Parameters<typeof getTahunAjaranAktif>[0]): Promise<{
+  tahunAjaranId: string;
+  semester: Semester;
+}> {
+  const taAktif = await getTahunAjaranAktif(tx);
+  if (!taAktif) {
+    throw new Error("Belum ada Tahun Ajaran aktif.");
+  }
+  const semester = await getSemesterAktif(tx);
+  if (!semester) {
+    throw new Error("Belum ada Semester aktif.");
+  }
+  return { tahunAjaranId: taAktif.id, semester };
 }
 
 // 1. catatAbsensiAction -----------------------------------------------------
@@ -140,8 +162,15 @@ export async function catatAbsensiAction(formData: FormData): Promise<void> {
     // guru must own the rombel via beban_mengajar / wali_kelas).
     // react-doctor-disable-next-line async-parallel: catatAbsensi depends on ownership gate; audit depends on row.id, react-doctor/async-parallel
     await assertPemilikRombongan(tx, akses, async () => rombonganBelajarId);
+    const { tahunAjaranId, semester } = await resolvePeriodAktif(tx);
     const penempatan = await listPenempatanByPesertaDidik(tx, pesertaDidikId);
-    if (!penempatan.some((p) => p.rombonganBelajarId === rombonganBelajarId)) {
+    const terdaftar = penempatan.some(
+      (p) =>
+        p.rombonganBelajarId === rombonganBelajarId &&
+        p.tahunAjaranId === tahunAjaranId &&
+        p.semester === semester
+    );
+    if (!terdaftar) {
       throw new Error("Peserta Didik tidak terdaftar di Rombongan Belajar ini.");
     }
     const row = await catatAbsensi(tx, {

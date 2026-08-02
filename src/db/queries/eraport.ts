@@ -27,7 +27,7 @@
  * NOT usable downstream until verified. The lookup reads `drafAi` directly via
  * the schema (the draf-ai repo is read-only here); RLS scopes it to the tenant.
  */
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, not } from "drizzle-orm";
 
 import type { Db, Tx } from "../client";
 import { drafAi, drafEraport, revisiEraport } from "../schema";
@@ -179,6 +179,11 @@ export async function listDrafEraport(
  * Idempotent refusal: a row already in 'terbit' THROWS (no silent re-stamp /
  * overwrite). A missing / cross-tenant id also throws — a silent no-op would
  * mask failure for the action layer.
+ *
+ * TOCTOU guard: the UPDATE is scoped with a compound WHERE
+ * `(id AND status<>'terbit')` so a concurrent terbit between the SELECT and
+ * the UPDATE yields 0 updated rows — the function then throws rather than
+ * silently re-stamping diterbitkanPada.
  */
 export async function terbitkanEraport(
   db: Db | Tx,
@@ -195,12 +200,17 @@ export async function terbitkanEraport(
     throw new Error("E-Raport sudah diterbitkan");
   }
 
-  const [row] = await db
+  const updated = await db
     .update(drafEraport)
     .set({ status: "terbit", diterbitkanPada: new Date() })
-    .where(eq(drafEraport.id, id))
+    .where(and(eq(drafEraport.id, id), not(eq(drafEraport.status, "terbit"))))
     .returning();
-  return row;
+  // TOCTOU guard: 0 rows means the row reached 'terbit' between the SELECT and
+  // this UPDATE (concurrent terbit) — refuse rather than re-stamp.
+  if (updated.length === 0) {
+    throw new Error("E-Raport sudah diterbitkan");
+  }
+  return updated[0];
 }
 
 /**
