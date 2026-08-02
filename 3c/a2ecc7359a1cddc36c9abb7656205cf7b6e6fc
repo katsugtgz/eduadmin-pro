@@ -1,0 +1,21 @@
+src/app/page.tsx
+  s_20146d5d79664f::t_c2d1648443c0d1 21,30,36,43,50,56,62,68,142,160
+src/app/page.test.tsx
+  s_20146d5d79664f::t_c2d1648443c0d1 38,41-53
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "3ca2ecc7359a1cddc36c9abb7656205cf7b6e6fc",
+  "prompts": {},
+  "sessions": {
+    "s_20146d5d79664f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fc0f7-a4cd-7402-9e61-0438ecf03eb7",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Muhammad Naufal Mahdi <053792227@ecampus.ut.ac.id>"
+    }
+  }
+}
