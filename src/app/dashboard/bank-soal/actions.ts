@@ -476,32 +476,33 @@ export async function imporButirSoalJsonAction(
   let gagal = parsed.length - kandidat.length;
   const { db } = getDb();
   await withTenant(db, akses.membership.orgId, async (tx) => {
-    // SEQUENTIAL — Drizzle/node-postgres transactions are single-connection: a
-    // failed query poisons the tx ("current transaction is aborted"), so a
-    // concurrent Promise.all over the same tx makes every sibling item fail
-    // with the cascade abort error and the catch swallows each, leaving
-    // tersimpan=0. Iterate in order; items before a failure still commit,
-    // the failing item captures its REAL error, and audit ordering is
-    // deterministic.
+    // SEQUENTIAL + per-item SAVEPOINT. Sequential alone is NOT sufficient: a
+    // real DB error (FK/NOT NULL) aborts the whole outer tx ("current
+    // transaction is aborted"), so later items fail and the import rolls back
+    // while reporting tersimpan>0. Wrapping each item in `tx.transaction()`
+    // issues a SQL SAVEPOINT; a failure rolls back only that item, leaving the
+    // outer tx usable for the next. Count only after the savepoint commits.
     for (const item of kandidat) {
       try {
-        const butir = await buatButirSoal(tx, {
-          mataPelajaranId: item.mataPelajaranId,
-          tingkatId: item.tingkatId,
-          jenis: item.jenis,
-          pertanyaan: item.pertanyaan,
-          pilihan: item.pilihan,
-          kunciJawaban: item.kunciJawaban,
-          pembahasan: item.pembahasan,
-          dibuatOleh: akses.userId,
-        });
-        await catatAudit(tx, {
-          aktor: akses.userId,
-          aksi: "impor-ai-eksternal",
-          target: `butir_soal:${butir.id}`,
-          beban: {
-            provenance: `eksternal-pengguna:${akses.userId}:${item.jenis}:${new Date().toISOString()}`,
-          },
+        await tx.transaction(async (itemTx) => {
+          const butir = await buatButirSoal(itemTx, {
+            mataPelajaranId: item.mataPelajaranId,
+            tingkatId: item.tingkatId,
+            jenis: item.jenis,
+            pertanyaan: item.pertanyaan,
+            pilihan: item.pilihan,
+            kunciJawaban: item.kunciJawaban,
+            pembahasan: item.pembahasan,
+            dibuatOleh: akses.userId,
+          });
+          await catatAudit(itemTx, {
+            aktor: akses.userId,
+            aksi: "impor-ai-eksternal",
+            target: `butir_soal:${butir.id}`,
+            beban: {
+              provenance: `eksternal-pengguna:${akses.userId}:${item.jenis}:${new Date().toISOString()}`,
+            },
+          });
         });
         tersimpan += 1;
       } catch (error) {

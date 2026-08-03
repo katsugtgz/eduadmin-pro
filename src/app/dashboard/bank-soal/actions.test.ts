@@ -11,7 +11,15 @@ import type { IzinSlug, RoleSlug } from "@/lib/auth/types";
 // repo fns, so fakeTx is a plain sentinel.
 
 const mocks = vi.hoisted(() => {
-  const fakeTxLocal = { __tx: true };
+  // `withTenant` calls `fn(fakeTx)` and the action then calls
+  // `tx.transaction(itemTx => ...)` per item (per-item SAVEPOINT). The fake tx
+  // must expose `.transaction(cb)` that invokes `cb` with itself so the per-item
+  // body runs against the same mocked repos.
+  const fakeTxLocal = {
+    __tx: true,
+    transaction: async <R>(cb: (tx: unknown) => Promise<R>): Promise<R> =>
+      cb(fakeTxLocal),
+  };
   return {
     getAksesSaya: vi.fn(),
     requireAuth: vi.fn(async () => ({ userId: "workos_u_1" })),
