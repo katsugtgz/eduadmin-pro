@@ -8,6 +8,7 @@ import { createDb, withTenant, type Db, type Tx } from "../client";
 import { runMigrations } from "../migrate";
 import * as schema from "../schema";
 import { cleanupTestTenants } from "../test-cleanup";
+import { extractDrizzleSqlLeaves } from "../test-drizzle-walker";
 
 import {
   buatDrafAi,
@@ -405,6 +406,12 @@ describe("verifikasiDrafAi TOCTOU race guard (queries/draf-ai.ts)", () => {
       verifikasiDrafAi(mockTx, "race-1", "disetujui", "u_race")
     ).rejects.toThrow(/sudah diverifikasi/);
     expect(captured).toHaveLength(1);
-    expect(captured[0]).toBeDefined();
+    // Walking the Drizzle SQL tree exposes bound param values, so this guards
+    // against a regression that drops the status='menunggu' predicate (an
+    // id-only WHERE would still pass the empty-updateResult path but would
+    // NOT contain "menunggu" here).
+    const leaves = extractDrizzleSqlLeaves(captured[0]);
+    expect(leaves).toContain("menunggu");
+    expect(leaves).toContain("race-1");
   });
 });

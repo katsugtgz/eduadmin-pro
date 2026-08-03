@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   bersihkanSemuaDraft,
@@ -87,9 +87,28 @@ describe("store (#21) — natural-key id stability (in-place update)", () => {
   });
 
   it("simpanDraftNilai preserves dibuatPada across re-saves of the same natural key", () => {
-    const first = simpanDraftNilai(inputNilai);
-    const second = simpanDraftNilai({ ...inputNilai, nilai: 75 });
-    expect(second.dibuatPada).toBe(first.dibuatPada);
+    // Two synchronous saves in the same millisecond yield identical
+    // new Date().toISOString() values, so the test would pass even if the
+    // preservation logic (existing?.dibuatPada ?? ...) were removed. Use fake
+    // timers and advance the clock between saves so the preservation code is
+    // load-bearing: if the code regressed to always stamping new Date(), the
+    // second call would emit a LATER timestamp and this assertion would fail.
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date("2026-01-01T00:00:00.000Z"));
+      const first = simpanDraftNilai(inputNilai);
+      const firstStamp = first.dibuatPada;
+
+      vi.setSystemTime(new Date("2026-01-02T00:00:00.000Z"));
+      const second = simpanDraftNilai({ ...inputNilai, nilai: 75 });
+
+      expect(second.dibuatPada).toBe(firstStamp);
+      // Discriminator: a fresh stamp at this point would be 2026-01-02, NOT
+      // 2026-01-01. Confirms the preservation code actually fired.
+      expect(second.dibuatPada).not.toContain("2026-01-02");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("simpanDraftNilai with a DIFFERENT pesertaDidikId mints a different id", () => {

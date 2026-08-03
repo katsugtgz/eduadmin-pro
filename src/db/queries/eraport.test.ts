@@ -8,6 +8,7 @@ import { createDb, withTenant, type Db, type Tx } from "../client";
 import { runMigrations } from "../migrate";
 import * as schema from "../schema";
 import { cleanupTestTenants } from "../test-cleanup";
+import { extractDrizzleSqlLeaves } from "../test-drizzle-walker";
 
 import { buatDrafAi } from "./draf-ai";
 import { buatPermintaanAi, ubahStatusPermintaanAi } from "./permintaan-ai";
@@ -557,6 +558,12 @@ describe("terbitkanEraport TOCTOU race guard (queries/eraport.ts)", () => {
       /sudah diterbitkan/
     );
     expect(captured).toHaveLength(1);
-    expect(captured[0]).toBeDefined();
+    // Walking the Drizzle SQL tree exposes bound param values, so this guards
+    // against a regression that drops the status<>'terbit' predicate (an
+    // id-only WHERE would still pass the empty-updateResult path but would
+    // NOT contain "terbit" here).
+    const leaves = extractDrizzleSqlLeaves(captured[0]);
+    expect(leaves).toContain("terbit");
+    expect(leaves).toContain("race-e");
   });
 });
