@@ -1091,9 +1091,10 @@ export const drafAi = pgTable(
  * `batas` defaults to 100. UNIQUE on (tenant, tahun_ajaran, semester) so at most
  * one quota row per period. Cascades on delete of tenant or tahun_ajaran.
  *
- * NOTE: adding `kuota_ai_terpakai_batas_check` to this table requires a new
- * migration (`ALTER TABLE kuota_ai ADD CONSTRAINT kuota_ai_terpakai_batas_check
- * CHECK (terpakai <= batas)`); see the migration-need note in the fix report.
+ * NOTE: `kuota_ai_terpakai_batas_check` is applied to the real database by
+ * migration `0019_kuota_ai_terpakai_batas_check.sql` (clamps pre-existing
+ * offenders, then ADD CONSTRAINT). Drizzle-kit reads this declaration as the
+ * type mirror; the migration is the source of truth at runtime.
  */
 export const kuotaAi = pgTable(
   "kuota_ai",
