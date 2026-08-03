@@ -13,7 +13,8 @@ export const ProfilSatuanPendidikanSchema = z.object({
   logoUrl: z
     .string()
     .trim()
-    .regex(/^https:\/\/.+/, "URL harus https")
+    .url("URL tidak valid")
+    .regex(/^https:\/\//, "URL harus https")
     .optional()
     .or(z.literal("")),
 });

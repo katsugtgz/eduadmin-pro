@@ -364,6 +364,21 @@ describe("C. dokumen cetak — buatDokumenCetakAction", () => {
     ).rejects.toThrow(/URL Stempel harus https/i);
     expect(buatDokumenCetak).not.toHaveBeenCalled();
   });
+
+  it("6g. stempelUrl with malformed URL (space in host) -> throws /URL Stempel tidak valid/i; repo NOT called", async () => {
+    await expect(
+      buatDokumenCetakAction(
+        formData({
+          drafEraportId: "er_1",
+          templateCetakId: "tpl_1",
+          format: "a4",
+          stempelUrl: "https://example .com/stamp.png",
+        })
+      )
+    ).rejects.toThrow(/URL Stempel tidak valid/i);
+    expect(buatDokumenCetak).not.toHaveBeenCalled();
+    expect(withTenant).not.toHaveBeenCalled();
+  });
 });
 
 // ===========================================================================

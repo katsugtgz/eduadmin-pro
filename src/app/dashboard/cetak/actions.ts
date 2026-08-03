@@ -145,8 +145,16 @@ export async function buatDokumenCetakAction(
     String(formData.get("tandaTanganPeran") ?? "").trim() || null;
   const stempelUrlRaw =
     String(formData.get("stempelUrl") ?? "").trim() || null;
-  if (stempelUrlRaw !== null && !/^https:\/\/.+/.test(stempelUrlRaw)) {
-    throw new Error("URL Stempel harus https.");
+  if (stempelUrlRaw !== null) {
+    let stempelUrl: URL;
+    try {
+      stempelUrl = new URL(stempelUrlRaw);
+    } catch {
+      throw new Error("URL Stempel tidak valid.");
+    }
+    if (stempelUrl.protocol !== "https:" || !stempelUrl.hostname) {
+      throw new Error("URL Stempel harus https.");
+    }
   }
   const stempelUrl = stempelUrlRaw;
 

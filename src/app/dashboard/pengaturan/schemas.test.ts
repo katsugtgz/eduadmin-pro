@@ -107,6 +107,16 @@ describe("ProfilSatuanPendidikanSchema (#5)", () => {
       }),
     ).toThrow(/https/i);
   });
+
+  it("rejects a malformed https://-prefixed logoUrl with a space in the host", () => {
+    expect(() =>
+      ProfilSatuanPendidikanSchema.parse({
+        nama: "SMP Negeri 1",
+        jenjang: "SMP",
+        logoUrl: "https://example .com/logo.png",
+      }),
+    ).toThrow();
+  });
 });
 
 describe("PengaturanSatuanPendidikanSchema (#5)", () => {
