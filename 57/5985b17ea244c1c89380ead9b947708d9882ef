@@ -1,0 +1,34 @@
+src/db/queries/draf-ai.test.ts
+  s_c14e7bccdc43f3::t_39aff8cf308988 409,413-415
+  s_c14e7bccdc43f3::t_99f0866cf68009 410-412
+  s_c14e7bccdc43f3::t_3d2a6a199e5890 11
+src/db/queries/eraport.test.ts
+  s_c14e7bccdc43f3::t_cc82da32d15dd9 561,565-567
+  s_c14e7bccdc43f3::t_f75f261cb97972 562-564
+  s_c14e7bccdc43f3::t_12d14eee4c3681 11
+src/lib/offline/store.test.ts
+  s_c14e7bccdc43f3::t_4900e8089a0c6d 1
+  s_c14e7bccdc43f3::t_b607087bb36e40 90-111
+src/db/queries/perangkat-ajar.test.ts
+  s_c14e7bccdc43f3::t_15bac6bb4752c5 595-597
+  s_c14e7bccdc43f3::t_dbf1b5588b3a87 594,598-600
+  s_c14e7bccdc43f3::t_722326cab102d5 11
+src/db/test-drizzle-walker.ts
+  s_c14e7bccdc43f3::t_22e432400ca665 1-53
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "575985b17ea244c1c89380ead9b947708d9882ef",
+  "prompts": {},
+  "sessions": {
+    "s_c14e7bccdc43f3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_039b135faffeoWt5ZEQEHuMSQg",
+        "model": "glm-5.2"
+      },
+      "human_author": "Muhammad Naufal Mahdi <053792227@ecampus.ut.ac.id>"
+    }
+  }
+}
