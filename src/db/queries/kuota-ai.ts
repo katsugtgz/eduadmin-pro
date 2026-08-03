@@ -79,6 +79,12 @@ export async function getKuotaAi(
  * default is 100). Returns the info either way. The action layer typically
  * calls this at request time to guarantee a quota row exists before reading
  * `tersisa`.
+ *
+ * CONFLICT-SAFE: two concurrent requests for the same (tenant, tahunAjaranId,
+ * semester) can both observe no row and race on INSERT. The plain INSERT would
+ * throw a unique-violation on the loser, aborting the outer transaction. Use
+ * `onConflictDoNothing` on `kuota_ai_tenant_ta_semester_unique`; if the INSERT
+ * lost the race (0 rows returned), re-read the winner's row.
  */
 export async function getAtauBuatKuotaAi(
   db: Db | Tx,
@@ -90,15 +96,23 @@ export async function getAtauBuatKuotaAi(
   if (existing) return existing;
 
   const batas = batasDefault ?? 100;
-  const [row] = await db
+  const inserted = await db
     .insert(kuotaAi)
     .values({ tahunAjaranId, semester, batas })
+    .onConflictDoNothing({ target: [kuotaAi.tenantId, kuotaAi.tahunAjaranId, kuotaAi.semester] })
     .returning();
-  return {
-    terpakai: row.terpakai,
-    batas: row.batas,
-    tersisa: row.batas - row.terpakai,
-  };
+  if (inserted.length === 1) {
+    const row = inserted[0];
+    return {
+      terpakai: row.terpakai,
+      batas: row.batas,
+      tersisa: row.batas - row.terpakai,
+    };
+  }
+  // 0 rows means onConflictDoNothing matched a concurrent insert; re-read.
+  const after = await getKuotaAi(db, tahunAjaranId, semester);
+  if (after) return after;
+  throw new Error("Kuota AI tidak dapat dibuat (konflik atau RLS).");
 }
 
 /**

@@ -345,5 +345,38 @@ describeOrSkip(
       );
       expect(after).toBeNull();
     });
+
+    // 8. Concurrent getAtauBuatKuotaAi on the same (tenant, TA, semester):
+    //    both observe no row, both race to INSERT. onConflictDoNothing on
+    //    kuota_ai_tenant_ta_semester_unique makes the loser re-read the
+    //    winner's row instead of throwing a unique-violation that would abort
+    //    the outer transaction. Both calls return valid InfoKuotaAi and
+    //    exactly one row exists in the table.
+    itOrSkip("getAtauBuatKuotaAi is conflict-safe under concurrent inserts", async () => {
+      const taId = await withTenant(db, SEED_A, async (tx) =>
+        seedTahunAjaran(tx, SEED_A, "race").then((ta) => ta.id)
+      );
+
+      // Two concurrent transactions, same (tenant, TA, semester).
+      const [a, b] = await Promise.all([
+        withTenant(db, SEED_A, (tx) => getAtauBuatKuotaAi(tx, taId, "ganjil", 30)),
+        withTenant(db, SEED_A, (tx) => getAtauBuatKuotaAi(tx, taId, "ganjil", 30)),
+      ]);
+
+      // Both return well-formed info; neither threw a unique-violation.
+      expect(a.terpakai).toBe(0);
+      expect(b.terpakai).toBe(0);
+      expect(a.batas).toBe(30);
+      expect(b.batas).toBe(30);
+
+      // Exactly one row — the loser's onConflictDoNothing did not duplicate.
+      const rows = await withTenant(db, SEED_A, (tx) =>
+        tx
+          .select()
+          .from(schema.kuotaAi)
+          .where(eq(schema.kuotaAi.tahunAjaranId, taId))
+      );
+      expect(rows).toHaveLength(1);
+    });
   }
 );
