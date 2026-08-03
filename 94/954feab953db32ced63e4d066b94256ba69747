@@ -1,0 +1,21 @@
+src/db/migrations/0019_kuota_ai_terpakai_batas_check.sql
+  s_c14e7bccdc43f3::t_0c8f9bc058ba4e 1-31
+src/db/schema.ts
+  s_c14e7bccdc43f3::t_851efc84509773 1094-1097
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "94954feab953db32ced63e4d066b94256ba69747",
+  "prompts": {},
+  "sessions": {
+    "s_c14e7bccdc43f3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_039b135faffeoWt5ZEQEHuMSQg",
+        "model": "glm-5.2"
+      },
+      "human_author": "Muhammad Naufal Mahdi <053792227@ecampus.ut.ac.id>"
+    }
+  }
+}
