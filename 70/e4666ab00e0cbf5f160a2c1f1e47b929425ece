@@ -1,0 +1,25 @@
+src/app/dashboard/pengaturan/schemas.ts
+  s_c14e7bccdc43f3::t_e3bad75d795c05 16-17
+src/app/dashboard/pengaturan/schemas.test.ts
+  s_c14e7bccdc43f3::t_2edc2bbbace3b4 110-119
+src/app/dashboard/cetak/actions.ts
+  s_c14e7bccdc43f3::t_ab8c90fce2d3ad 148-157
+src/app/dashboard/cetak/actions.test.ts
+  s_c14e7bccdc43f3::t_074c5cb5538794 367-381
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "70e4666ab00e0cbf5f160a2c1f1e47b929425ece",
+  "prompts": {},
+  "sessions": {
+    "s_c14e7bccdc43f3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_039b135faffeoWt5ZEQEHuMSQg",
+        "model": "glm-5.2"
+      },
+      "human_author": "Muhammad Naufal Mahdi <053792227@ecampus.ut.ac.id>"
+    }
+  }
+}
