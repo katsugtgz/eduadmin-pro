@@ -10,12 +10,40 @@
 -- PRE-CLAMP: the old `tambahPemakaianKuota` (read-then-write) provably allowed
 -- `terpakai > batas` under concurrent increments. A plain
 --   ALTER TABLE kuota_ai ADD CONSTRAINT ... CHECK (terpakai <= batas)
--- would FAIL validation on any pre-existing offending row, so clamp first.
--- Clamping down to `batas` is the conservative direction: it never grants
--- extra budget, only removes the impossible surplus.
+-- would FAIL validation on any pre-existing offending row, so offending rows
+-- must be reconciled first. Clamping down to `batas` is the conservative
+-- direction (it never grants extra budget, only removes the impossible
+-- surplus), but doing it blindly would destroy the record of how far over the
+-- historical usage went. Instead: snapshot every offender into a side
+-- reconciliation table BEFORE clamping, so the overage is preserved for audit
+-- and never silently rewritten. Operators inspect
+-- `kuota_ai_overage_audit_0019` to reconcile; an empty table means no overage
+-- was present at migration time.
 --
--- IDEMPOTENT: the DO block checks pg_constraint before adding; safe to re-run.
+-- IDEMPOTENT:
+--   - the audit table uses CREATE TABLE IF NOT EXISTS;
+--   - the snapshot only selects rows still over `batas` (after the first run
+--     there are none, so a re-run inserts 0 rows — no duplicate audit entries);
+--   - the DO block checks pg_constraint before adding; safe to re-run.
 
+create table if not exists kuota_ai_overage_audit_0019 (
+  audit_id        bigint generated always as identity primary key,
+  tenant_id       text        not null,
+  tahun_ajaran_id uuid        not null,
+  semester        text        not null,
+  terpakai_before integer     not null,
+  batas           integer     not null,
+  overage         integer     not null,
+  audited_at      timestamptz not null default now()
+);
+
+insert into kuota_ai_overage_audit_0019
+  (tenant_id, tahun_ajaran_id, semester, terpakai_before, batas, overage)
+select tenant_id, tahun_ajaran_id, semester, terpakai, batas, terpakai - batas
+  from kuota_ai
+  where terpakai > batas;
+
+-- Clamp now that the overage is recorded. Conservative direction only.
 update kuota_ai set terpakai = batas where terpakai > batas;
 
 do $$

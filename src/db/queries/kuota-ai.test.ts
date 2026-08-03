@@ -352,18 +352,73 @@ describeOrSkip(
     //    winner's row instead of throwing a unique-violation that would abort
     //    the outer transaction. Both calls return valid InfoKuotaAi and
     //    exactly one row exists in the table.
-    itOrSkip("getAtauBuatKuotaAi is conflict-safe under concurrent inserts", async () => {
+    //
+    //    To exercise the conflict path DETERMINISTICALLY (rather than hoping
+    //    Promise.all interleaves the right way), the find-or-create dance is
+    //    replayed inline with a barrier between the read and the insert: both
+    //    transactions confirm absence, then wait on each other, then both
+    //    INSERT. Exactly one INSERT wins (1 row returned); the other gets 0
+    //    rows from onConflictDoNothing and takes the re-read path. Asserting
+    //    `winnerCount === 1` proves the loser actually hit the conflict path
+    //    rather than the find branch.
+    itOrSkip("getAtauBuatKuotaAi conflict path: both observe no row, loser re-reads winner's insert", async () => {
       const taId = await withTenant(db, SEED_A, async (tx) =>
         seedTahunAjaran(tx, SEED_A, "race").then((ta) => ta.id)
       );
 
-      // Two concurrent transactions, same (tenant, TA, semester).
+      // Two-phase barrier: each side signals it saw absence, then waits for
+      // the other side's signal before INSERTing. Guarantees both SELECTs see
+      // no row before either INSERT runs.
+      let releaseA = (): void => {};
+      let releaseB = (): void => {};
+      const sawAbsenceA = new Promise<void>((r) => (releaseA = r));
+      const sawAbsenceB = new Promise<void>((r) => (releaseB = r));
+
+      // Mirrors getAtauBuatKuotaAi's find-or-create with the barrier injected
+      // between the read and the insert, so the conflict window is forced open.
+      async function race(tx: Tx, release: () => void, waitFor: Promise<void>) {
+        const existing = await getKuotaAi(tx, taId, "ganjil");
+        if (existing) throw new Error("precondition: expected no row before race");
+        release();
+        await waitFor;
+        const inserted = await tx
+          .insert(schema.kuotaAi)
+          .values({ tahunAjaranId: taId, semester: "ganjil", batas: 30 })
+          .onConflictDoNothing({
+            target: [
+              schema.kuotaAi.tenantId,
+              schema.kuotaAi.tahunAjaranId,
+              schema.kuotaAi.semester,
+            ],
+          })
+          .returning();
+        if (inserted.length === 1) {
+          const row = inserted[0];
+          return {
+            terpakai: row.terpakai,
+            batas: row.batas,
+            tersisa: row.batas - row.terpakai,
+            won: true,
+          };
+        }
+        // onConflictDoNothing matched a concurrent insert (0 rows); re-read.
+        const after = await getKuotaAi(tx, taId, "ganjil");
+        if (!after) throw new Error("expected winner's row after conflict");
+        return { ...after, won: false };
+      }
+
       const [a, b] = await Promise.all([
-        withTenant(db, SEED_A, (tx) => getAtauBuatKuotaAi(tx, taId, "ganjil", 30)),
-        withTenant(db, SEED_A, (tx) => getAtauBuatKuotaAi(tx, taId, "ganjil", 30)),
+        withTenant(db, SEED_A, (tx) => race(tx, releaseA, sawAbsenceB)),
+        withTenant(db, SEED_A, (tx) => race(tx, releaseB, sawAbsenceA)),
       ]);
 
-      // Both return well-formed info; neither threw a unique-violation.
+      // Exactly one INSERT won; the other took the onConflict + re-read path.
+      // This is the assertion the bare Promise.all version could not make: if
+      // conflict-safety regressed (e.g. onConflictDoNothing removed), both
+      // would report won:true and this fails.
+      expect([a.won, b.won].filter(Boolean)).toHaveLength(1);
+
+      // Both return well-formed info pointing at the single row.
       expect(a.terpakai).toBe(0);
       expect(b.terpakai).toBe(0);
       expect(a.batas).toBe(30);
