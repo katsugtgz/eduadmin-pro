@@ -1,0 +1,21 @@
+src/db/queries/kuota-ai.test.ts
+  s_84cdb25aac134c::t_e0a3c91e4430c4 355-364,369-409,411-412,415-421
+src/db/migrations/0019_kuota_ai_terpakai_batas_check.sql
+  s_84cdb25aac134c::t_33f8b68675cb05 13-21,23-27,29-46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "4dfc561a473b119f6bf6f30b0682e328d12c1d64",
+  "prompts": {},
+  "sessions": {
+    "s_84cdb25aac134c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_03997bea3ffelAU56rCGwC08Ns",
+        "model": "glm-5.2"
+      },
+      "human_author": "Muhammad Naufal Mahdi <053792227@ecampus.ut.ac.id>"
+    }
+  }
+}
