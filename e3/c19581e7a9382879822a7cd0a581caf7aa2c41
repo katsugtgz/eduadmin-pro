@@ -1,0 +1,22 @@
+src/db/queries/kuota-ai.test.ts
+  s_c14e7bccdc43f3::t_8d82392709ce93 348-380
+src/db/queries/kuota-ai.ts
+  s_c14e7bccdc43f3::t_6377bef160984a 112
+  s_c14e7bccdc43f3::t_d80b5aa5dd7bdc 82-87,99,102,104-111,113-115
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "e3c19581e7a9382879822a7cd0a581caf7aa2c41",
+  "prompts": {},
+  "sessions": {
+    "s_c14e7bccdc43f3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_039b135faffeoWt5ZEQEHuMSQg",
+        "model": "glm-5.2"
+      },
+      "human_author": "Muhammad Naufal Mahdi <053792227@ecampus.ut.ac.id>"
+    }
+  }
+}
