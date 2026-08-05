@@ -154,8 +154,20 @@ async function terapkanDraftNilai(
 
     if (updated.length === 0) {
       // Lost the race between the SELECT above and this UPDATE — another sync
-      // bumped versi in between. Treat as a conflict (AC#4).
-      return { status: "konflik" as const, versi: versiBaru };
+      // bumped versi in between. Treat as a conflict (AC#4). Re-read the row
+      // to return its ACTUAL current versi (not the attempted versiBaru);
+      // the client surfaces this number verbatim ("data server lebih baru
+      // (versi X)") and uses it to decide its next refresh. If the row was
+      // concurrently deleted, fall back to the last-seen versi.
+      const race = await cariNilaiByNaturalKey(
+        tx,
+        draft.penilaianId,
+        draft.pesertaDidikId
+      );
+      return {
+        status: "konflik" as const,
+        versi: race?.versi ?? existing.versi,
+      };
     }
 
     await catatAudit(tx, {
@@ -258,7 +270,17 @@ async function terapkanDraftAbsensi(
       .returning();
 
     if (updated.length === 0) {
-      return { status: "konflik" as const, versi: versiBaru };
+      // Lost the race — re-read the row's ACTUAL current versi (AC#4); see
+      // the nilai branch for rationale.
+      const race = await cariAbsensiByNaturalKey(
+        tx,
+        draft.pesertaDidikId,
+        draft.tanggal
+      );
+      return {
+        status: "konflik" as const,
+        versi: race?.versi ?? existing.versi,
+      };
     }
 
     await catatAudit(tx, {

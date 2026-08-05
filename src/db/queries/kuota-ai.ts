@@ -8,13 +8,19 @@
  * tenant set in the session GUC `app.tenant_id`. `tenant_id` is NEVER passed
  * as a function argument — it always defaults from the GUC.
  *
- * AC#5 BUDGET ENFORCEMENT (split across layers): this repo exposes the
- * primitives — read (`getKuotaAi`), find-or-create (`getAtauBuatKuotaAi`),
- * increment (`tambahPemakaianKuota`). It does NOT reject requests when
- * `terpakai >= batas`. That gate lives in the ACTION layer: the action reads
- * `tersisa` and rejects BEFORE calling `tambahPemakaianKuota`. Keeping the
- * enforcement out of the repo keeps it a pure data-access surface (no business
- * rule leaks) and lets the action layer compose quota with authz + audit.
+ * AC#5 BUDGET ENFORCEMENT (split across layers, TOCTOU-safe): this repo
+ * exposes the primitives — read (`getKuotaAi`), find-or-create
+ * (`getAtauBuatKuotaAi`), increment (`tambahPemakaianKuota`). The ATOMIC gate
+ * lives in `tambahPemakaianKuota`: it issues a conditional UPDATE
+ * (`SET terpakai = terpakai + 1 WHERE terpakai < batas RETURNING *`) and throws
+ * `Kuota AI habis.` when 0 rows match (quota exhausted OR the row is RLS-hidden
+ * / missing — the action layer always calls `getAtauBuatKuotaAi` first, so a
+ * missing row is a deny, not a normal path). The row lock the UPDATE takes
+ * serializes concurrent increments under READ COMMITTED, so N concurrent
+ * transactions cannot all pass the gate. The action layer additionally keeps
+ * an early `tersisa <= 0` read as a UX fast-path; the repo UPDATE is the source
+ * of truth. The `kuota_ai_terpakai_batas_check` CHECK (`terpakai <= batas`) is
+ * the DB backstop.
  *
  * `InfoKuotaAi` is the derived read shape: `tersisa = batas - terpakai`,
  * computed here so callers never have to re-derive it.
@@ -73,6 +79,12 @@ export async function getKuotaAi(
  * default is 100). Returns the info either way. The action layer typically
  * calls this at request time to guarantee a quota row exists before reading
  * `tersisa`.
+ *
+ * CONFLICT-SAFE: two concurrent requests for the same (tenant, tahunAjaranId,
+ * semester) can both observe no row and race on INSERT. The plain INSERT would
+ * throw a unique-violation on the loser, aborting the outer transaction. Use
+ * `onConflictDoNothing` on `kuota_ai_tenant_ta_semester_unique`; if the INSERT
+ * lost the race (0 rows returned), re-read the winner's row.
  */
 export async function getAtauBuatKuotaAi(
   db: Db | Tx,
@@ -84,24 +96,41 @@ export async function getAtauBuatKuotaAi(
   if (existing) return existing;
 
   const batas = batasDefault ?? 100;
-  const [row] = await db
+  const inserted = await db
     .insert(kuotaAi)
     .values({ tahunAjaranId, semester, batas })
+    .onConflictDoNothing({ target: [kuotaAi.tenantId, kuotaAi.tahunAjaranId, kuotaAi.semester] })
     .returning();
-  return {
-    terpakai: row.terpakai,
-    batas: row.batas,
-    tersisa: row.batas - row.terpakai,
-  };
+  if (inserted.length === 1) {
+    const row = inserted[0];
+    return {
+      terpakai: row.terpakai,
+      batas: row.batas,
+      tersisa: row.batas - row.terpakai,
+    };
+  }
+  // 0 rows means onConflictDoNothing matched a concurrent insert; re-read.
+  const after = await getKuotaAi(db, tahunAjaranId, semester);
+  if (after) return after;
+  throw new Error("Kuota AI tidak dapat dibuat (konflik atau RLS).");
 }
 
 /**
- * AC#5 increment primitive. Atomically bumps `terpakai` by 1 (DB-side
- * `terpakai = terpakai + 1`) and returns the updated info. Throws when no row
- * exists for (tahunAjaranId, semester) — the action layer MUST have called
- * `getAtauBuatKuotaAi` first. The budget gate (`tersisa > 0`) is the action
- * layer's responsibility; this function does NOT enforce it and will happily
- * increment past `batas` if invoked.
+ * AC#5 atomic increment + gate. Issues a single conditional UPDATE that bumps
+ * `terpakai` by 1 ONLY when `terpakai < batas`, and returns the updated info.
+ * The row-level lock taken by the UPDATE serializes concurrent increments on
+ * the same row under READ COMMITTED, so N concurrent transactions cannot all
+ * pass the gate (closes the TOCTOU window the old read-then-write had).
+ *
+ * Throws `"Kuota AI habis."` when 0 rows are updated, which happens when:
+ *   - `terpakai >= batas` (quota exhausted — the normal reject path), OR
+ *   - no row matches `(tahunAjaranId, semester)` under RLS (cross-tenant access
+ *     is hidden, and the caller did not call `getAtauBuatKuotaAi` first).
+ *
+ * The schema `kuota_ai_terpakai_batas_check` (`terpakai <= batas`) is the DB
+ * backstop: even a buggy caller cannot push `terpakai` past `batas`. The action
+ * layer keeps an early `tersisa <= 0` read as a UX fast-path; this UPDATE is the
+ * source of truth.
  */
 export async function tambahPemakaianKuota(
   db: Db | Tx,
@@ -114,13 +143,14 @@ export async function tambahPemakaianKuota(
     .where(
       and(
         eq(kuotaAi.tahunAjaranId, tahunAjaranId),
-        eq(kuotaAi.semester, semester)
+        eq(kuotaAi.semester, semester),
+        sql`${kuotaAi.terpakai} < ${kuotaAi.batas}`
       )
     )
     .returning();
 
   if (rows.length === 0) {
-    throw new Error("Kuota AI tidak ditemukan");
+    throw new Error("Kuota AI habis.");
   }
   const row = rows[0];
   return {

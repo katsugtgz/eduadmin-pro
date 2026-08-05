@@ -430,3 +430,107 @@ describe("gate-1: wali_kelas (read-only) -> 403 before any work", () => {
     expect(res.status).toBe(400);
   });
 });
+
+// ===========================================================================
+// AC#4 lost-race — between the SELECT (versi matched) and the UPDATE, another
+// sync bumped the row's versi. The UPDATE matches 0 rows. The route MUST
+// return konflik with the ACTUAL current server versi (not the attempted
+// versiBaru = existing.versi + 1). The client uses this versi verbatim to
+// surface "data server lebih baru (versi X)" and decide its next refresh — a
+// wrong value (versiBaru) misinforms the user.
+//
+// The default mock `update` returns [{ id: "mock_row" }]; we override it once
+// per test to return [] AND mutate the fixture row to the post-race versi,
+// proving the re-SELECT is what produces the response versi.
+// ===========================================================================
+
+describe("AC#4 lost-race: UPDATE 0 rows -> re-SELECT returns actual current versi", () => {
+  it("nilai lost-race -> konflik with actual server versi (99), not versiBaru (2)", async () => {
+    getAksesSaya.mockResolvedValue(aksesAktif("guru", { ptkId: "ptk_A" }));
+    aturFixtures({
+      penilaian: [{ id: "p_1", komponenNilaiId: "kn_1" }],
+      komponen: [{ id: "kn_1", bebanMengajarId: "bm_1" }],
+      beban: [{ id: "bm_1", ptkId: "ptk_A" }],
+    });
+    // nilai row at versi=1 -> matches draft.versi=1 -> reaches the UPDATE.
+    tableRows.set(dbSchema.nilaiPesertaDidik, [
+      {
+        id: "nilai_1",
+        penilaianId: "p_1",
+        pesertaDidikId: "pd_1",
+        versi: 1,
+      },
+    ]);
+
+    // Race: UPDATE matches 0 rows AND a concurrent sync bumped versi to 99.
+    fakeTxRef.update.mockImplementationOnce(() => ({
+      set: () => ({
+        where: () => {
+          tableRows.set(dbSchema.nilaiPesertaDidik, [
+            {
+              id: "nilai_1",
+              penilaianId: "p_1",
+              pesertaDidikId: "pd_1",
+              versi: 99,
+            },
+          ]);
+          return { returning: async () => [] };
+        },
+      }),
+    }));
+
+    const res = await POST(postJson({ tipe: "nilai", draft: DRAFT_NILAI_VALID }));
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.status).toBe("konflik");
+    // Re-SELECT produced versi=99 — NOT the attempted versiBaru=2.
+    expect(body.versi).toBe(99);
+    expect(body.versi).not.toBe(2);
+    // No audit ran (the write did not land).
+    expect(catatAudit).not.toHaveBeenCalled();
+  });
+
+  it("absensi lost-race -> konflik with actual server versi (99), not versiBaru (2)", async () => {
+    getAksesSaya.mockResolvedValue(aksesAktif("guru", { ptkId: "ptk_A" }));
+    aturFixtures({
+      rombel: [{ id: "rombel_1" }],
+      beban: [{ rombonganBelajarId: "rombel_1", ptkId: "ptk_A" }],
+      absensi: [
+        {
+          id: "absensi_1",
+          pesertaDidikId: "pd_1",
+          rombonganBelajarId: "rombel_1",
+          tanggal: "2026-04-01",
+          versi: 1,
+        },
+      ],
+    });
+
+    fakeTxRef.update.mockImplementationOnce(() => ({
+      set: () => ({
+        where: () => {
+          tableRows.set(dbSchema.absensiHarian, [
+            {
+              id: "absensi_1",
+              pesertaDidikId: "pd_1",
+              rombonganBelajarId: "rombel_1",
+              tanggal: "2026-04-01",
+              versi: 99,
+            },
+          ]);
+          return { returning: async () => [] };
+        },
+      }),
+    }));
+
+    const res = await POST(
+      postJson({ tipe: "absensi", draft: DRAFT_ABSENSI_VALID })
+    );
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.status).toBe("konflik");
+    expect(body.versi).toBe(99);
+    expect(body.versi).not.toBe(2);
+    expect(catatAudit).not.toHaveBeenCalled();
+  });
+});

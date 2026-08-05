@@ -274,6 +274,111 @@ describe("C. dokumen cetak — buatDokumenCetakAction", () => {
     expect(buatDokumenCetak).toHaveBeenCalledTimes(1);
     expect(catatAudit).not.toHaveBeenCalled();
   });
+
+  it("6a. stempelUrl with valid https URL -> forwarded to repo verbatim", async () => {
+    await buatDokumenCetakAction(
+      formData({
+        drafEraportId: "er_1",
+        templateCetakId: "tpl_1",
+        format: "a4",
+        stempelUrl: "https://cdn.example.com/stamp.png",
+      })
+    );
+    expect(buatDokumenCetak).toHaveBeenCalledWith(
+      TX,
+      expect.objectContaining({
+        stempelUrl: "https://cdn.example.com/stamp.png",
+      })
+    );
+  });
+
+  it("6b. stempelUrl omitted -> forwarded as null (no validation error)", async () => {
+    await buatDokumenCetakAction(
+      formData({
+        drafEraportId: "er_1",
+        templateCetakId: "tpl_1",
+        format: "a4",
+      })
+    );
+    expect(buatDokumenCetak).toHaveBeenCalledWith(
+      TX,
+      expect.objectContaining({ stempelUrl: null })
+    );
+  });
+
+  it("6c. stempelUrl empty string -> forwarded as null (no validation error)", async () => {
+    await buatDokumenCetakAction(
+      formData({
+        drafEraportId: "er_1",
+        templateCetakId: "tpl_1",
+        format: "a4",
+        stempelUrl: "   ",
+      })
+    );
+    expect(buatDokumenCetak).toHaveBeenCalledWith(
+      TX,
+      expect.objectContaining({ stempelUrl: null })
+    );
+  });
+
+  it("6d. stempelUrl with http:// scheme -> throws /URL Stempel harus https/i; repo NOT called", async () => {
+    await expect(
+      buatDokumenCetakAction(
+        formData({
+          drafEraportId: "er_1",
+          templateCetakId: "tpl_1",
+          format: "a4",
+          stempelUrl: "http://insecure.example.com/stamp.png",
+        })
+      )
+    ).rejects.toThrow(/URL Stempel harus https/i);
+    expect(buatDokumenCetak).not.toHaveBeenCalled();
+    expect(catatAudit).not.toHaveBeenCalled();
+    expect(withTenant).not.toHaveBeenCalled();
+  });
+
+  it("6e. stempelUrl with javascript: scheme -> throws /URL Stempel harus https/i (XSS guard)", async () => {
+    await expect(
+      buatDokumenCetakAction(
+        formData({
+          drafEraportId: "er_1",
+          templateCetakId: "tpl_1",
+          format: "a4",
+          stempelUrl: "javascript:alert(1)",
+        })
+      )
+    ).rejects.toThrow(/URL Stempel harus https/i);
+    expect(buatDokumenCetak).not.toHaveBeenCalled();
+  });
+
+  it("6f. stempelUrl with data: scheme -> throws /URL Stempel harus https/i", async () => {
+    await expect(
+      buatDokumenCetakAction(
+        formData({
+          drafEraportId: "er_1",
+          templateCetakId: "tpl_1",
+          format: "a4",
+          stempelUrl: "data:image/png;base64,xxx",
+        })
+      )
+    ).rejects.toThrow(/URL Stempel harus https/i);
+    expect(buatDokumenCetak).not.toHaveBeenCalled();
+  });
+
+  it("6g. stempelUrl with malformed URL (space in host) -> throws /URL Stempel tidak valid/i; repo NOT called", async () => {
+    await expect(
+      buatDokumenCetakAction(
+        formData({
+          drafEraportId: "er_1",
+          templateCetakId: "tpl_1",
+          format: "a4",
+          stempelUrl: "https://example .com/stamp.png",
+        })
+      )
+    ).rejects.toThrow(/URL Stempel tidak valid/i);
+    expect(buatDokumenCetak).not.toHaveBeenCalled();
+    expect(withTenant).not.toHaveBeenCalled();
+  });
 });
 
 // ===========================================================================

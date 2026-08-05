@@ -11,7 +11,15 @@ import type { IzinSlug, RoleSlug } from "@/lib/auth/types";
 // repo fns, so fakeTx is a plain sentinel.
 
 const mocks = vi.hoisted(() => {
-  const fakeTxLocal = { __tx: true };
+  // `withTenant` calls `fn(fakeTx)` and the action then calls
+  // `tx.transaction(itemTx => ...)` per item (per-item SAVEPOINT). The fake tx
+  // must expose `.transaction(cb)` that invokes `cb` with itself so the per-item
+  // body runs against the same mocked repos.
+  const fakeTxLocal = {
+    __tx: true,
+    transaction: async <R>(cb: (tx: unknown) => Promise<R>): Promise<R> =>
+      cb(fakeTxLocal),
+  };
   return {
     getAksesSaya: vi.fn(),
     requireAuth: vi.fn(async () => ({ userId: "workos_u_1" })),
@@ -783,5 +791,65 @@ describe("G. imporButirSoalJsonAction", () => {
       fakeTxRef,
       expect.not.objectContaining({ tenantId: "org_B" })
     );
+  });
+
+  it("partial failure: failing item captures its real error, subsequent items still attempted", async () => {
+    getAksesSaya.mockResolvedValue(aksesAktif("guru"));
+    buatButirSoal
+      .mockRejectedValueOnce(
+        new Error("mataPelajaranId tidak ditemukan")
+      )
+      .mockResolvedValueOnce({ id: "bs_2" });
+
+    const hasil = await imporButirSoalJsonAction(
+      null,
+      formData({ jsonButir: JSON.stringify([validButir, validButir]) })
+    );
+
+    expect(hasil.ok).toBe(true);
+    expect(hasil.tersimpan).toBe(1);
+    expect(hasil.gagal).toBe(1);
+    expect(hasil.errors).toEqual([
+      "Butir 1: gagal disimpan (mataPelajaranId tidak ditemukan).",
+    ]);
+    expect(buatButirSoal).toHaveBeenCalledTimes(2);
+  });
+});
+
+// ===========================================================================
+// H. JSON.parse error boundary — `pilihan` arrives as a formData string. An
+// invalid value MUST throw a Bahasa message BEFORE any DB work; the V8
+// SyntaxError ("Unexpected token...") must NOT leak.
+// ===========================================================================
+
+describe("H. JSON.parse error boundary on `pilihan`", () => {
+  beforeEach(() => {
+    getAksesSaya.mockResolvedValue(aksesAktif("guru"));
+  });
+
+  it("buatButirSoalAction with invalid pilihan JSON -> throws /Pilihan bukan JSON yang valid/i; repo NOT called", async () => {
+    await expect(
+      buatButirSoalAction(
+        formData({
+          mataPelajaranId: "mp_1",
+          jenis: "pg",
+          pertanyaan: "Q?",
+          kunciJawaban: "A",
+          pilihan: "{not-json",
+        })
+      )
+    ).rejects.toThrow(/Pilihan bukan JSON yang valid/i);
+    expect(buatButirSoal).not.toHaveBeenCalled();
+    expect(withTenant).not.toHaveBeenCalled();
+  });
+
+  it("ubahButirSoalAction with invalid pilihan JSON -> throws /Pilihan bukan JSON yang valid/i; repo NOT called", async () => {
+    await expect(
+      ubahButirSoalAction(
+        formData({ id: "bs_1", pilihan: "{not-json" })
+      )
+    ).rejects.toThrow(/Pilihan bukan JSON yang valid/i);
+    expect(ubahButirSoal).not.toHaveBeenCalled();
+    expect(withTenant).not.toHaveBeenCalled();
   });
 });

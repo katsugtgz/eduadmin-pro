@@ -81,9 +81,39 @@ const mocks = vi.hoisted(() => {
     catatAudit: vi.fn(async () => undefined),
     catatAbsensi: vi.fn(async () => ({ id: "absensi_new" })),
     ubahAbsensi: vi.fn(async () => ({ id: "absensi_1" })),
-    listPenempatanByPesertaDidik: vi.fn(async () => [
-      { pesertaDidikId: "pd_1", rombonganBelajarId: "rombel_1" },
-    ]),
+    listPenempatanByPesertaDidik: vi.fn(
+      async (): Promise<
+        {
+          pesertaDidikId: string;
+          rombonganBelajarId: string;
+          tahunAjaranId: string;
+          semester: string;
+        }[]
+      > => [
+        {
+          pesertaDidikId: "pd_1",
+          rombonganBelajarId: "rombel_1",
+          tahunAjaranId: "ta_2025",
+          semester: "ganjil",
+        },
+      ]
+    ),
+    getTahunAjaranAktif: vi.fn(
+      async (): Promise<{
+        id: string;
+        tenantId: string;
+        nama: string;
+        aktif: boolean;
+        dibuatPada: Date;
+      } | null> => ({
+        id: "ta_2025",
+        tenantId: "org_A",
+        nama: "2025/2026",
+        aktif: true,
+        dibuatPada: new Date("2026-01-01T00:00:00Z"),
+      })
+    ),
+    getSemesterAktif: vi.fn(async (): Promise<"ganjil" | "genap" | null> => "ganjil"),
     revalidatePath: vi.fn(),
     fakeTx: fakeTxLocal,
     tableRows,
@@ -98,6 +128,8 @@ const {
   catatAbsensi,
   ubahAbsensi,
   listPenempatanByPesertaDidik,
+  getTahunAjaranAktif,
+  getSemesterAktif,
   revalidatePath,
   fakeTx: fakeTxRef,
   tableRows,
@@ -124,6 +156,10 @@ vi.mock("@/db/queries/absensi", () => ({
 }));
 vi.mock("@/db/queries/penempatan-rombongan-belajar", () => ({
   listPenempatanByPesertaDidik: mocks.listPenempatanByPesertaDidik,
+}));
+vi.mock("@/db/queries/tahun-ajaran", () => ({
+  getTahunAjaranAktif: mocks.getTahunAjaranAktif,
+  getSemesterAktif: mocks.getSemesterAktif,
 }));
 vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidatePath }));
 
@@ -226,6 +262,8 @@ beforeEach(() => {
   catatAbsensi.mockReset();
   ubahAbsensi.mockReset();
   listPenempatanByPesertaDidik.mockReset();
+  getTahunAjaranAktif.mockReset();
+  getSemesterAktif.mockReset();
   revalidatePath.mockReset();
   // restore default implementations cleared by mockReset
   getDb.mockImplementation(() => ({ db: { __db: true } }));
@@ -233,8 +271,21 @@ beforeEach(() => {
   catatAbsensi.mockResolvedValue({ id: "absensi_new" });
   ubahAbsensi.mockResolvedValue({ id: "absensi_1" });
   listPenempatanByPesertaDidik.mockResolvedValue([
-    { pesertaDidikId: "pd_1", rombonganBelajarId: "rombel_1" },
+    {
+      pesertaDidikId: "pd_1",
+      rombonganBelajarId: "rombel_1",
+      tahunAjaranId: "ta_2025",
+      semester: "ganjil",
+    },
   ]);
+  getTahunAjaranAktif.mockResolvedValue({
+    id: "ta_2025",
+    tenantId: "org_A",
+    nama: "2025/2026",
+    aktif: true,
+    dibuatPada: new Date("2026-01-01T00:00:00Z"),
+  });
+  getSemesterAktif.mockResolvedValue("ganjil");
   catatAudit.mockResolvedValue(undefined);
   // Default C3 ownership fixtures: guru ptk_A owns rombel_1 via beban_mengajar,
   // and absensi_1 lives under rombel_1. Cleared per test; deny tests override.
@@ -686,7 +737,12 @@ describe("H. C3 DENY — guru does NOT own the Rombongan Belajar", () => {
       beban: [{ rombonganBelajarId: "rombel_1", ptkId: "ptk_A" }],
     });
     listPenempatanByPesertaDidik.mockResolvedValue([
-      { pesertaDidikId: "pd_2", rombonganBelajarId: "rombel_2" },
+      {
+        pesertaDidikId: "pd_2",
+        rombonganBelajarId: "rombel_2",
+        tahunAjaranId: "ta_2025",
+        semester: "ganjil",
+      },
     ]);
 
     await expect(
@@ -737,7 +793,12 @@ describe("I. C3 ownership via wali_kelas (beban absent)", () => {
       wali: [{ rombonganBelajarId: "rombel_2", ptkId: "ptk_A" }],
     });
     listPenempatanByPesertaDidik.mockResolvedValue([
-      { pesertaDidikId: "pd_1", rombonganBelajarId: "rombel_2" },
+      {
+        pesertaDidikId: "pd_1",
+        rombonganBelajarId: "rombel_2",
+        tahunAjaranId: "ta_2025",
+        semester: "ganjil",
+      },
     ]);
   });
 
@@ -752,6 +813,118 @@ describe("I. C3 ownership via wali_kelas (beban absent)", () => {
     );
     expect(catatAbsensi).toHaveBeenCalledTimes(1);
     expect(catatAudit).toHaveBeenCalledTimes(1);
+  });
+});
+
+// ===========================================================================
+// I2. AC#4 membership scope — penempatan is filtered by the ACTIVE Tahun
+// Ajaran + Semester. A historical placement (different TA or semester) for
+// the same rombel MUST NOT satisfy the membership check.
+// ===========================================================================
+
+describe("I2. AC#4 — membership scoped by active TA + semester", () => {
+  beforeEach(() => {
+    getAksesSaya.mockResolvedValue(aksesAktif("guru", { ptkId: "ptk_A" }));
+    aturFixtures({
+      beban: [{ rombonganBelajarId: "rombel_1", ptkId: "ptk_A" }],
+    });
+  });
+
+  it("24a. placement in same rombel but PRIOR TA -> rejected as not-current-member", async () => {
+    listPenempatanByPesertaDidik.mockResolvedValue([
+      {
+        pesertaDidikId: "pd_1",
+        rombonganBelajarId: "rombel_1",
+        tahunAjaranId: "ta_2024",
+        semester: "ganjil",
+      },
+    ]);
+
+    await expect(
+      catatAbsensiAction(
+        formData({
+          pesertaDidikId: "pd_1",
+          rombonganBelajarId: "rombel_1",
+          tanggal: "2026-04-01",
+          statusKehadiran: "hadir",
+        })
+      )
+    ).rejects.toThrow(/tidak terdaftar di Rombongan Belajar ini/i);
+    expect(catatAbsensi).not.toHaveBeenCalled();
+  });
+
+  it("24b. placement in same rombel + TA but DIFFERENT semester -> rejected", async () => {
+    listPenempatanByPesertaDidik.mockResolvedValue([
+      {
+        pesertaDidikId: "pd_1",
+        rombonganBelajarId: "rombel_1",
+        tahunAjaranId: "ta_2025",
+        semester: "genap",
+      },
+    ]);
+
+    await expect(
+      catatAbsensiAction(
+        formData({
+          pesertaDidikId: "pd_1",
+          rombonganBelajarId: "rombel_1",
+          tanggal: "2026-04-01",
+          statusKehadiran: "hadir",
+        })
+      )
+    ).rejects.toThrow(/tidak terdaftar di Rombongan Belajar ini/i);
+    expect(catatAbsensi).not.toHaveBeenCalled();
+  });
+
+  it("24c. placement in same rombel + active TA + active semester -> accepted", async () => {
+    listPenempatanByPesertaDidik.mockResolvedValue([
+      {
+        pesertaDidikId: "pd_1",
+        rombonganBelajarId: "rombel_1",
+        tahunAjaranId: "ta_2025",
+        semester: "ganjil",
+      },
+    ]);
+
+    await catatAbsensiAction(
+      formData({
+        pesertaDidikId: "pd_1",
+        rombonganBelajarId: "rombel_1",
+        tanggal: "2026-04-01",
+        statusKehadiran: "hadir",
+      })
+    );
+    expect(catatAbsensi).toHaveBeenCalledTimes(1);
+  });
+
+  it("24d. getTahunAjaranAktif null -> throws /Belum ada Tahun Ajaran aktif/i", async () => {
+    getTahunAjaranAktif.mockResolvedValue(null);
+    await expect(
+      catatAbsensiAction(
+        formData({
+          pesertaDidikId: "pd_1",
+          rombonganBelajarId: "rombel_1",
+          tanggal: "2026-04-01",
+          statusKehadiran: "hadir",
+        })
+      )
+    ).rejects.toThrow(/Belum ada Tahun Ajaran aktif/i);
+    expect(catatAbsensi).not.toHaveBeenCalled();
+  });
+
+  it("24e. getSemesterAktif null -> throws /Belum ada Semester aktif/i", async () => {
+    getSemesterAktif.mockResolvedValue(null);
+    await expect(
+      catatAbsensiAction(
+        formData({
+          pesertaDidikId: "pd_1",
+          rombonganBelajarId: "rombel_1",
+          tanggal: "2026-04-01",
+          statusKehadiran: "hadir",
+        })
+      )
+    ).rejects.toThrow(/Belum ada Semester aktif/i);
+    expect(catatAbsensi).not.toHaveBeenCalled();
   });
 });
 

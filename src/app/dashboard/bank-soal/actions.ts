@@ -163,9 +163,14 @@ export async function buatButirSoalAction(formData: FormData): Promise<void> {
   const pembahasanRaw = String(formData.get("pembahasan") ?? "").trim();
   const pembahasan = pembahasanRaw || null;
   const pilihanRaw = String(formData.get("pilihan") ?? "").trim();
-  const pilihan = pilihanRaw
-    ? JSON.parse(pilihanRaw) as unknown
-    : null;
+  let pilihan: unknown = null;
+  if (pilihanRaw) {
+    try {
+      pilihan = JSON.parse(pilihanRaw);
+    } catch {
+      throw new Error("Pilihan bukan JSON yang valid.");
+    }
+  }
   const drafAiIdRaw = String(formData.get("drafAiId") ?? "").trim();
   const drafAiId = drafAiIdRaw || null;
 
@@ -233,7 +238,13 @@ export async function ubahButirSoalAction(formData: FormData): Promise<void> {
   if (formData.has("pembahasan"))
     perubahan.pembahasan = pembahasanRaw || null;
   const pilihanRaw = String(formData.get("pilihan") ?? "").trim();
-  if (pilihanRaw) perubahan.pilihan = JSON.parse(pilihanRaw) as unknown;
+  if (pilihanRaw) {
+    try {
+      perubahan.pilihan = JSON.parse(pilihanRaw);
+    } catch {
+      throw new Error("Pilihan bukan JSON yang valid.");
+    }
+  }
 
   const { db } = getDb();
   await withTenant(db, akses.membership.orgId, async (tx) => {
@@ -465,10 +476,16 @@ export async function imporButirSoalJsonAction(
   let gagal = parsed.length - kandidat.length;
   const { db } = getDb();
   await withTenant(db, akses.membership.orgId, async (tx) => {
-    const hasilSimpan = await Promise.all(
-      kandidat.map(async (item) => {
-        try {
-          const butir = await buatButirSoal(tx, {
+    // SEQUENTIAL + per-item SAVEPOINT. Sequential alone is NOT sufficient: a
+    // real DB error (FK/NOT NULL) aborts the whole outer tx ("current
+    // transaction is aborted"), so later items fail and the import rolls back
+    // while reporting tersimpan>0. Wrapping each item in `tx.transaction()`
+    // issues a SQL SAVEPOINT; a failure rolls back only that item, leaving the
+    // outer tx usable for the next. Count only after the savepoint commits.
+    for (const item of kandidat) {
+      try {
+        await tx.transaction(async (itemTx) => {
+          const butir = await buatButirSoal(itemTx, {
             mataPelajaranId: item.mataPelajaranId,
             tingkatId: item.tingkatId,
             jenis: item.jenis,
@@ -478,7 +495,7 @@ export async function imporButirSoalJsonAction(
             pembahasan: item.pembahasan,
             dibuatOleh: akses.userId,
           });
-          await catatAudit(tx, {
+          await catatAudit(itemTx, {
             aktor: akses.userId,
             aksi: "impor-ai-eksternal",
             target: `butir_soal:${butir.id}`,
@@ -486,23 +503,13 @@ export async function imporButirSoalJsonAction(
               provenance: `eksternal-pengguna:${akses.userId}:${item.jenis}:${new Date().toISOString()}`,
             },
           });
-          return { ok: true as const };
-        } catch (error) {
-          const detail =
-            error instanceof Error ? error.message : "kesalahan basis data";
-          return {
-            ok: false as const,
-            error: `Butir ${item.nomor}: gagal disimpan (${detail}).`,
-          };
-        }
-      })
-    );
-    for (const hasil of hasilSimpan) {
-      if (hasil.ok) {
+        });
         tersimpan += 1;
-      } else {
+      } catch (error) {
+        const detail =
+          error instanceof Error ? error.message : "kesalahan basis data";
         gagal += 1;
-        errors.push(hasil.error);
+        errors.push(`Butir ${item.nomor}: gagal disimpan (${detail}).`);
       }
     }
   });

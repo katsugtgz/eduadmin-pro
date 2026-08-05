@@ -551,6 +551,67 @@ describe("D. XOR validation — rombonganBelajarId vs tingkatId", () => {
 });
 
 // ===========================================================================
+// D2. Partial-XOR clearing (AC#2) — ubah must null the opposite column when
+// only one of rombonganBelajarId / tingkatId is supplied, so a row can switch
+// branches without tripping the schema CHECK.
+// ===========================================================================
+
+describe("D2. partial-XOR clearing — ubahBebanMengajarAction", () => {
+  beforeEach(() => {
+    getAksesSaya.mockResolvedValue(aksesAktif("admin_satuan_pendidikan"));
+  });
+
+  it("13a. setting ONLY rombonganBelajarId -> repo receives tingkatId: null (clears prior tingkat)", async () => {
+    await ubahBebanMengajarAction(
+      formData({ id: "bm_1", rombonganBelajarId: "rb_new" })
+    );
+    expect(ubahBebanMengajar).toHaveBeenCalledWith(
+      fakeTxRef,
+      "bm_1",
+      expect.objectContaining({
+        rombonganBelajarId: "rb_new",
+        tingkatId: null,
+      })
+    );
+  });
+
+  it("13b. setting ONLY tingkatId -> repo receives rombonganBelajarId: null (clears prior rombel)", async () => {
+    await ubahBebanMengajarAction(
+      formData({ id: "bm_2", tingkatId: "tg_new" })
+    );
+    expect(ubahBebanMengajar).toHaveBeenCalledWith(
+      fakeTxRef,
+      "bm_2",
+      expect.objectContaining({
+        tingkatId: "tg_new",
+        rombonganBelajarId: null,
+      })
+    );
+  });
+
+  it("13c. setting NEITHER rombonganBelajarId nor tingkatId -> neither column touched (no spurious null)", async () => {
+    await ubahBebanMengajarAction(
+      formData({ id: "bm_3", ptkId: "ptk_9" })
+    );
+    expect(ubahBebanMengajar).toHaveBeenCalledWith(
+      fakeTxRef,
+      "bm_3",
+      expect.objectContaining({ ptkId: "ptk_9" })
+    );
+    expect(ubahBebanMengajar).not.toHaveBeenCalledWith(
+      fakeTxRef,
+      "bm_3",
+      expect.objectContaining({ rombonganBelajarId: null })
+    );
+    expect(ubahBebanMengajar).not.toHaveBeenCalledWith(
+      fakeTxRef,
+      "bm_3",
+      expect.objectContaining({ tingkatId: null })
+    );
+  });
+});
+
+// ===========================================================================
 // E. No active period (AC#4) — server-side TA+semester resolution failures.
 // ===========================================================================
 

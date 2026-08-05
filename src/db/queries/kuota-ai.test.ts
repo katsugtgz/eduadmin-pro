@@ -204,32 +204,50 @@ describeOrSkip(
       expect(after3).toEqual(final);
     });
 
-    // 4. AC#5 repo does NOT enforce the budget gate: tambahPemakaianKuota
-    //    will happily increment past `batas` if invoked. The action layer is
-    //    responsible for checking `tersisa > 0` first. (Negative tersisa is
-    //    observable — proves the repo is a dumb primitive.)
-    itOrSkip("tambahPemakaianKuota does NOT enforce batas (action-layer gate)", async () => {
-      const { overInfo } = await withTenant(db, SEED_A, async (tx) => {
+    // 4. AC#5 atomic enforcement: tambahPemakaianKuota is a conditional UPDATE
+    //    (`SET terpakai = terpakai + 1 WHERE terpakai < batas`). The last legal
+    //    increment lands terpakai exactly on batas (tersisa=0). The next call
+    //    matches 0 rows and throws "Kuota AI habis." — terpakai can NEVER exceed
+    //    batas. The row lock the UPDATE takes serializes concurrent increments
+    //    under READ COMMITTED, closing the TOCTOU window the old read-then-write
+    //    gate left open. (The schema `kuota_ai_terpakai_batas_check` is the DB
+    //    backstop — even a buggy caller cannot violate terpakai <= batas.)
+    itOrSkip("tambahPemakaianKuota enforces batas atomically (TOCTOU-safe)", async () => {
+      const { taId } = await withTenant(db, SEED_A, async (tx) => {
         const ta = await seedTahunAjaran(tx, SEED_A, "over");
         await getAtauBuatKuotaAi(tx, ta.id, "ganjil", 1); // batas=1
 
-        // First increment: terpakai=1, tersisa=0 (legal).
+        // First increment: terpakai=0 < batas=1 => 1 row updated, tersisa=0.
         const atLimit = await tambahPemakaianKuota(tx, ta.id, "ganjil");
+        expect(atLimit.terpakai).toBe(1);
+        expect(atLimit.batas).toBe(1);
         expect(atLimit.tersisa).toBe(0);
 
-        // Second increment: repo does NOT reject — terpakai=2, tersisa=-1.
-        // Action layer should have checked `tersisa > 0` before calling.
-        const overInfo = await tambahPemakaianKuota(tx, ta.id, "ganjil");
-        expect(overInfo.terpakai).toBe(2);
-        expect(overInfo.tersisa).toBe(-1);
-        return { overInfo };
+        // Second increment: terpakai=1 < batas=1 is FALSE => 0 rows updated =>
+        // throws. terpakai stays at 1 (never exceeds batas).
+        await expect(
+          tambahPemakaianKuota(tx, ta.id, "ganjil")
+        ).rejects.toThrow(/Kuota AI habis/i);
+
+        return { taId: ta.id };
       });
-      expect(overInfo.tersisa).toBe(-1);
+
+      // Final state: terpakai capped at batas=1, NOT 2.
+      const final = await withTenant(db, SEED_A, (tx) =>
+        getKuotaAi(tx, taId, "ganjil")
+      );
+      expect(final).not.toBeNull();
+      expect(final!.terpakai).toBe(1);
+      expect(final!.batas).toBe(1);
+      expect(final!.tersisa).toBe(0);
     });
 
     // 5. getKuotaAi returns null when no row exists (absence == absence; the
     //    action layer decides unlimited vs batas=0). tambahPemakaianKuota on a
-    //    missing row throws (caller must getAtauBuatKuotaAi first).
+    //    missing row matches 0 rows in the conditional UPDATE and throws
+    //    "Kuota AI habis." (the same message as the exhausted case — the action
+    //    layer always calls getAtauBuatKuotaAi first, so a missing row is a
+    //    deny, not a normal path).
     itOrSkip("getKuotaAi returns null when absent; tambahPemakaianKuota throws on missing", async () => {
       const ta = await withTenant(db, SEED_A, async (tx) =>
         seedTahunAjaran(tx, SEED_A, "missing")
@@ -242,7 +260,7 @@ describeOrSkip(
 
       await expect(
         withTenant(db, SEED_A, (tx) => tambahPemakaianKuota(tx, ta.id, "ganjil"))
-      ).rejects.toThrow(/tidak ditemukan/);
+      ).rejects.toThrow(/Kuota AI habis/i);
     });
 
     // 6. §13 RLS isolation: SEED_B cannot read SEED_A's kuota via getKuotaAi.
@@ -287,11 +305,11 @@ describeOrSkip(
       );
       expect(aReadsB).toBeNull();
 
-      // tambahPemakaianKuota from SEED_B on SEED_A's row throws (RLS hides it
-      // -> zero rows updated -> repo throws "tidak ditemukan").
+      // tambahPemakaianKuota from SEED_B on SEED_A's row matches 0 rows (RLS
+      // hides it) => throws "Kuota AI habis." (same 0-row path as exhaustion).
       await expect(
         withTenant(db, SEED_B, (tx) => tambahPemakaianKuota(tx, aTaId, "ganjil"))
-      ).rejects.toThrow(/tidak ditemukan/);
+      ).rejects.toThrow(/Kuota AI habis/i);
 
       // SEED_A's terpakai is still 1 (B's increment was rejected).
       const aAfter = await withTenant(db, SEED_A, (tx) =>
@@ -326,6 +344,94 @@ describeOrSkip(
         getKuotaAi(tx, taId, "ganjil")
       );
       expect(after).toBeNull();
+    });
+
+    // 8. Concurrent getAtauBuatKuotaAi on the same (tenant, TA, semester):
+    //    both observe no row, both race to INSERT. onConflictDoNothing on
+    //    kuota_ai_tenant_ta_semester_unique makes the loser re-read the
+    //    winner's row instead of throwing a unique-violation that would abort
+    //    the outer transaction. Both calls return valid InfoKuotaAi and
+    //    exactly one row exists in the table.
+    //
+    //    To exercise the conflict path DETERMINISTICALLY (rather than hoping
+    //    Promise.all interleaves the right way), the find-or-create dance is
+    //    replayed inline with a barrier between the read and the insert: both
+    //    transactions confirm absence, then wait on each other, then both
+    //    INSERT. Exactly one INSERT wins (1 row returned); the other gets 0
+    //    rows from onConflictDoNothing and takes the re-read path. Asserting
+    //    `winnerCount === 1` proves the loser actually hit the conflict path
+    //    rather than the find branch.
+    itOrSkip("getAtauBuatKuotaAi conflict path: both observe no row, loser re-reads winner's insert", async () => {
+      const taId = await withTenant(db, SEED_A, async (tx) =>
+        seedTahunAjaran(tx, SEED_A, "race").then((ta) => ta.id)
+      );
+
+      // Two-phase barrier: each side signals it saw absence, then waits for
+      // the other side's signal before INSERTing. Guarantees both SELECTs see
+      // no row before either INSERT runs.
+      let releaseA = (): void => {};
+      let releaseB = (): void => {};
+      const sawAbsenceA = new Promise<void>((r) => (releaseA = r));
+      const sawAbsenceB = new Promise<void>((r) => (releaseB = r));
+
+      // Mirrors getAtauBuatKuotaAi's find-or-create with the barrier injected
+      // between the read and the insert, so the conflict window is forced open.
+      async function race(tx: Tx, release: () => void, waitFor: Promise<void>) {
+        const existing = await getKuotaAi(tx, taId, "ganjil");
+        if (existing) throw new Error("precondition: expected no row before race");
+        release();
+        await waitFor;
+        const inserted = await tx
+          .insert(schema.kuotaAi)
+          .values({ tahunAjaranId: taId, semester: "ganjil", batas: 30 })
+          .onConflictDoNothing({
+            target: [
+              schema.kuotaAi.tenantId,
+              schema.kuotaAi.tahunAjaranId,
+              schema.kuotaAi.semester,
+            ],
+          })
+          .returning();
+        if (inserted.length === 1) {
+          const row = inserted[0];
+          return {
+            terpakai: row.terpakai,
+            batas: row.batas,
+            tersisa: row.batas - row.terpakai,
+            won: true,
+          };
+        }
+        // onConflictDoNothing matched a concurrent insert (0 rows); re-read.
+        const after = await getKuotaAi(tx, taId, "ganjil");
+        if (!after) throw new Error("expected winner's row after conflict");
+        return { ...after, won: false };
+      }
+
+      const [a, b] = await Promise.all([
+        withTenant(db, SEED_A, (tx) => race(tx, releaseA, sawAbsenceB)),
+        withTenant(db, SEED_A, (tx) => race(tx, releaseB, sawAbsenceA)),
+      ]);
+
+      // Exactly one INSERT won; the other took the onConflict + re-read path.
+      // This is the assertion the bare Promise.all version could not make: if
+      // conflict-safety regressed (e.g. onConflictDoNothing removed), both
+      // would report won:true and this fails.
+      expect([a.won, b.won].filter(Boolean)).toHaveLength(1);
+
+      // Both return well-formed info pointing at the single row.
+      expect(a.terpakai).toBe(0);
+      expect(b.terpakai).toBe(0);
+      expect(a.batas).toBe(30);
+      expect(b.batas).toBe(30);
+
+      // Exactly one row — the loser's onConflictDoNothing did not duplicate.
+      const rows = await withTenant(db, SEED_A, (tx) =>
+        tx
+          .select()
+          .from(schema.kuotaAi)
+          .where(eq(schema.kuotaAi.tahunAjaranId, taId))
+      );
+      expect(rows).toHaveLength(1);
     });
   }
 );

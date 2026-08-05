@@ -51,6 +51,72 @@ describe("ProfilSatuanPendidikanSchema (#5)", () => {
       }),
     ).toThrow();
   });
+
+  it("accepts a valid https logoUrl", () => {
+    const parsed = ProfilSatuanPendidikanSchema.parse({
+      nama: "SMP Negeri 1",
+      jenjang: "SMP",
+      logoUrl: "https://cdn.example.com/logo.png",
+    });
+    expect(parsed.logoUrl).toBe("https://cdn.example.com/logo.png");
+  });
+
+  it("accepts an empty string logoUrl", () => {
+    const parsed = ProfilSatuanPendidikanSchema.parse({
+      nama: "SMP Negeri 1",
+      jenjang: "SMP",
+      logoUrl: "",
+    });
+    expect(parsed.logoUrl).toBe("");
+  });
+
+  it("accepts a missing logoUrl (optional)", () => {
+    const parsed = ProfilSatuanPendidikanSchema.parse({
+      nama: "SMP Negeri 1",
+      jenjang: "SMP",
+    });
+    expect(parsed.logoUrl).toBeUndefined();
+  });
+
+  it("rejects an http:// logoUrl", () => {
+    expect(() =>
+      ProfilSatuanPendidikanSchema.parse({
+        nama: "SMP Negeri 1",
+        jenjang: "SMP",
+        logoUrl: "http://insecure.example.com/logo.png",
+      }),
+    ).toThrow(/https/i);
+  });
+
+  it("rejects a javascript: logoUrl (URL scheme attack)", () => {
+    expect(() =>
+      ProfilSatuanPendidikanSchema.parse({
+        nama: "SMP Negeri 1",
+        jenjang: "SMP",
+        logoUrl: "javascript:alert(1)",
+      }),
+    ).toThrow(/https/i);
+  });
+
+  it("rejects a data: logoUrl (URL scheme attack)", () => {
+    expect(() =>
+      ProfilSatuanPendidikanSchema.parse({
+        nama: "SMP Negeri 1",
+        jenjang: "SMP",
+        logoUrl: "data:image/png;base64,xxx",
+      }),
+    ).toThrow(/https/i);
+  });
+
+  it("rejects a malformed https://-prefixed logoUrl with a space in the host", () => {
+    expect(() =>
+      ProfilSatuanPendidikanSchema.parse({
+        nama: "SMP Negeri 1",
+        jenjang: "SMP",
+        logoUrl: "https://example .com/logo.png",
+      }),
+    ).toThrow();
+  });
 });
 
 describe("PengaturanSatuanPendidikanSchema (#5)", () => {

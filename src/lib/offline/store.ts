@@ -46,19 +46,20 @@ function getStorage(): Storage | null {
 }
 
 /**
- * Minimal UUID v4 generator. Falls back to a timestamp+random slug when
- * `crypto.randomUUID` is absent (older runtimes). Used for draft ids only —
- * NOT a security primitive.
+ * Derive a STABLE draft id from the server natural key, so re-saving the same
+ * (penilaianId, pesertaDidikId) — or (pesertaDidikId, tanggal) — updates the
+ * existing draft in place instead of minting a duplicate. AC#4: the natural
+ * key is the same one the sync endpoint uses to resolve the target row.
  */
-function buatId(): string {
-  try {
-    if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-      return crypto.randomUUID();
-    }
-  } catch {
-    /* fall through */
-  }
-  return `draft_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+function idDraftNilai(
+  penilaianId: string,
+  pesertaDidikId: string
+): string {
+  return `draft-${penilaianId}-${pesertaDidikId}`;
+}
+
+function idDraftAbsensi(pesertaDidikId: string, tanggal: string): string {
+  return `draft-absen-${pesertaDidikId}-${tanggal}`;
 }
 
 function kunciDraft(tipe: TipeDraft, id: string): string {
@@ -113,34 +114,48 @@ function tulisItem(
 }
 
 /**
- * Store a pending Nilai draft (AC#1). Generates `id` + `dibuatPada`; the
- * caller-supplied `versi` is the server version the client last observed.
- * No-op on the server (SSR guard).
+ * Store a pending Nilai draft (AC#1). The id is DERIVED from the natural key
+ * `(penilaianId, pesertaDidikId)` so re-editing the same cell updates the
+ * existing draft in place — no duplicate drafts pile up. `dibuatPada` is
+ * preserved on update; `versi` and the payload fields are replaced with the
+ * caller's latest. No-op on the server (SSR guard).
  */
 export function simpanDraftNilai(input: InputDraftNilai): DraftNilai {
+  const id = idDraftNilai(input.penilaianId, input.pesertaDidikId);
+  const storage = getStorage();
+  const existing = storage
+    ? bacaItem(storage, kunciDraft("nilai", id))?.draft
+    : null;
   const draft: DraftNilai = {
-    id: buatId(),
+    id,
     penilaianId: input.penilaianId,
     pesertaDidikId: input.pesertaDidikId,
     nilai: input.nilai,
     catatan: input.catatan,
     versi: input.versi,
-    dibuatPada: new Date().toISOString(),
+    dibuatPada:
+      (existing as DraftNilai | undefined)?.dibuatPada ?? new Date().toISOString(),
   };
-  const storage = getStorage();
   if (!storage) return draft;
   tulisItem(storage, "nilai", { draft, status: "menunggu" });
   return draft;
 }
 
 /**
- * Store a pending Absensi draft (AC#1). Generates `id` + `dibuatPada`; the
- * caller-supplied `versi` is the server version the client last observed.
+ * Store a pending Absensi draft (AC#1). The id is DERIVED from the natural key
+ * `(pesertaDidikId, tanggal)` so re-editing the same cell on the same day
+ * updates the existing draft in place — no duplicate drafts pile up.
+ * `dibuatPada` is preserved on update; `versi` + payload fields are replaced.
  * No-op on the server (SSR guard).
  */
 export function simpanDraftAbsensi(input: InputDraftAbsensi): DraftAbsensi {
+  const id = idDraftAbsensi(input.pesertaDidikId, input.tanggal);
+  const storage = getStorage();
+  const existing = storage
+    ? bacaItem(storage, kunciDraft("absensi", id))?.draft
+    : null;
   const draft: DraftAbsensi = {
-    id: buatId(),
+    id,
     pesertaDidikId: input.pesertaDidikId,
     rombonganBelajarId: input.rombonganBelajarId,
     tanggal: input.tanggal,
@@ -148,9 +163,10 @@ export function simpanDraftAbsensi(input: InputDraftAbsensi): DraftAbsensi {
     catatan: input.catatan,
     metode: input.metode,
     versi: input.versi,
-    dibuatPada: new Date().toISOString(),
+    dibuatPada:
+      (existing as DraftAbsensi | undefined)?.dibuatPada ??
+      new Date().toISOString(),
   };
-  const storage = getStorage();
   if (!storage) return draft;
   tulisItem(storage, "absensi", { draft, status: "menunggu" });
   return draft;

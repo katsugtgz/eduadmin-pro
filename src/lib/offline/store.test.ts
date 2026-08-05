@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   bersihkanSemuaDraft,
@@ -63,12 +63,80 @@ describe("store (#21) — simpanDraft*", () => {
     expect(item.draft.metode).toBe("manual");
   });
 
-  it("simpanDraftNilai stamps a fresh id + ISO dibuatPada", () => {
+  it("simpanDraftNilai stamps an ISO dibuatPada + a stable natural-key id", () => {
     const draft = simpanDraftNilai(inputNilai);
     expect(draft.dibuatPada).toMatch(/^\d{4}-\d{2}-\d{2}T/);
-    // id is unique across calls
+    // id is derived from the natural key (penilaianId, pesertaDidikId) — same
+    // key re-edit MUST resolve to the same id so the draft updates in place.
+    expect(draft.id).toBe("draft-penilaian_1-pd_1");
     const draft2 = simpanDraftNilai(inputNilai);
-    expect(draft2.id).not.toBe(draft.id);
+    expect(draft2.id).toBe(draft.id);
+  });
+});
+
+describe("store (#21) — natural-key id stability (in-place update)", () => {
+  it("simpanDraftNilai with the same (penilaianId, pesertaDidikId) updates in place — no duplicate drafts", () => {
+    const first = simpanDraftNilai(inputNilai);
+    const second = simpanDraftNilai({ ...inputNilai, nilai: 92, versi: 2 });
+    expect(second.id).toBe(first.id);
+    expect(second.nilai).toBe(92);
+    expect(second.versi).toBe(2);
+    // single stored entry — re-save overwrote the original
+    const items = listSemuaItem();
+    expect(items).toHaveLength(1);
+  });
+
+  it("simpanDraftNilai preserves dibuatPada across re-saves of the same natural key", () => {
+    // Two synchronous saves in the same millisecond yield identical
+    // new Date().toISOString() values, so the test would pass even if the
+    // preservation logic (existing?.dibuatPada ?? ...) were removed. Use fake
+    // timers and advance the clock between saves so the preservation code is
+    // load-bearing: if the code regressed to always stamping new Date(), the
+    // second call would emit a LATER timestamp and this assertion would fail.
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date("2026-01-01T00:00:00.000Z"));
+      const first = simpanDraftNilai(inputNilai);
+      const firstStamp = first.dibuatPada;
+
+      vi.setSystemTime(new Date("2026-01-02T00:00:00.000Z"));
+      const second = simpanDraftNilai({ ...inputNilai, nilai: 75 });
+
+      expect(second.dibuatPada).toBe(firstStamp);
+      // Discriminator: a fresh stamp at this point would be 2026-01-02, NOT
+      // 2026-01-01. Confirms the preservation code actually fired.
+      expect(second.dibuatPada).not.toContain("2026-01-02");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("simpanDraftNilai with a DIFFERENT pesertaDidikId mints a different id", () => {
+    const a = simpanDraftNilai(inputNilai);
+    const b = simpanDraftNilai({ ...inputNilai, pesertaDidikId: "pd_2" });
+    expect(b.id).not.toBe(a.id);
+    expect(listSemuaItem()).toHaveLength(2);
+  });
+
+  it("simpanDraftAbsensi with the same (pesertaDidikId, tanggal) updates in place", () => {
+    const first = simpanDraftAbsensi(inputAbsensi);
+    expect(first.id).toBe("draft-absen-pd_1-2026-06-26");
+    const second = simpanDraftAbsensi({
+      ...inputAbsensi,
+      status: "sakit",
+      versi: 3,
+    });
+    expect(second.id).toBe(first.id);
+    expect(second.status).toBe("sakit");
+    expect(second.versi).toBe(3);
+    expect(listSemuaItem()).toHaveLength(1);
+  });
+
+  it("simpanDraftAbsensi with a DIFFERENT tanggal mints a different id", () => {
+    const a = simpanDraftAbsensi(inputAbsensi);
+    const b = simpanDraftAbsensi({ ...inputAbsensi, tanggal: "2026-06-27" });
+    expect(b.id).not.toBe(a.id);
+    expect(listSemuaItem()).toHaveLength(2);
   });
 });
 

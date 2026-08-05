@@ -8,6 +8,7 @@ import { createDb, withTenant, type Db, type Tx } from "../client";
 import { runMigrations } from "../migrate";
 import * as schema from "../schema";
 import { cleanupTestTenants } from "../test-cleanup";
+import { extractDrizzleSqlLeaves } from "../test-drizzle-walker";
 import { buatPermintaanAi } from "./permintaan-ai";
 import { buatDrafAi } from "./draf-ai";
 
@@ -410,12 +411,13 @@ describeOrSkip(
       );
       expect(rejected.statusDokumenAi).toBe("ditolak");
 
-      // NULL-status (non-AI) doc -> throws (nothing to verify)
+      // NULL-status (non-AI) doc -> throws with a DISTINCT message (not the
+      // generic "sudah diverifikasi" — there is nothing to verify).
       await expect(
         withTenant(db, SEED_A, (tx) =>
           verifikasiDokumenAi(tx, plainId, "disetujui")
         )
-      ).rejects.toThrow(/sudah diverifikasi/);
+      ).rejects.toThrow(/bukan AI-assisted/);
 
       // missing id -> throws
       await expect(
@@ -548,3 +550,70 @@ function semuaBerjenis(
 ): boolean {
   return rows.every((r) => r.jenis === expected);
 }
+
+// 10. TOCTOU race guard + NULL distinction (mock-based — no DB required, always
+//     runs). The conditional UPDATE WHERE `(id AND statusDokumenAi='menunggu')`
+//     makes a concurrent verification observable; a NULL status yields a
+//     DISTINCT error from an already-verified terminal state.
+describe("verifikasiDokumenAi TOCTOU + NULL guard (queries/perangkat-ajar.ts)", () => {
+  /** Minimal Tx stub returning controlled arrays (no DB touched). */
+  function makeMockTx(opts: {
+    readonly selectResult: readonly unknown[];
+    readonly updateResult: readonly unknown[];
+    readonly onUpdateWhere?: (cond: unknown) => void;
+  }): Tx {
+    return {
+      select: () => ({
+        from: () => ({ where: async () => [...opts.selectResult] }),
+      }),
+      update: () => ({
+        set: () => ({
+          where: (cond: unknown) => {
+            opts.onUpdateWhere?.(cond);
+            return { returning: async () => [...opts.updateResult] };
+          },
+        }),
+      }),
+    } as unknown as Tx;
+  }
+
+  it("throws when UPDATE matches 0 rows (row left 'menunggu' mid-call)", async () => {
+    const captured: unknown[] = [];
+    const mockTx = makeMockTx({
+      selectResult: [{ id: "race-p", statusDokumenAi: "menunggu" }],
+      updateResult: [],
+      onUpdateWhere: (cond) => {
+        captured.push(cond);
+      },
+    });
+
+    await expect(
+      verifikasiDokumenAi(mockTx, "race-p", "disetujui")
+    ).rejects.toThrow(/sudah diverifikasi/);
+    expect(captured).toHaveLength(1);
+    // Walking the Drizzle SQL tree exposes bound param values, so this guards
+    // against a regression that drops the status='menunggu' predicate (an
+    // id-only WHERE would still pass the empty-updateResult path but would
+    // NOT contain "menunggu" here).
+    const leaves = extractDrizzleSqlLeaves(captured[0]);
+    expect(leaves).toContain("menunggu");
+    expect(leaves).toContain("race-p");
+  });
+
+  it("throws 'bukan AI-assisted' (distinct from 'sudah diverifikasi') for NULL status", async () => {
+    const captured: unknown[] = [];
+    const mockTx = makeMockTx({
+      selectResult: [{ id: "null-p", statusDokumenAi: null }],
+      updateResult: [{ id: "null-p", statusDokumenAi: "disetujui" }],
+      onUpdateWhere: (cond) => {
+        captured.push(cond);
+      },
+    });
+
+    await expect(
+      verifikasiDokumenAi(mockTx, "null-p", "disetujui")
+    ).rejects.toThrow(/bukan AI-assisted/);
+    // A non-AI doc never reaches the UPDATE.
+    expect(captured).toHaveLength(0);
+  });
+});

@@ -1075,10 +1075,26 @@ export const drafAi = pgTable(
 /**
  * Kuota AI — per-tenant per-period (tahun_ajaran + semester) AI budget.
  *
- * AC#5: creating a permintaan_ai increments `terpakai`; the repo layer rejects
- * new requests when `terpakai >= batas`. `batas` defaults to 100. UNIQUE on
- * (tenant, tahun_ajaran, semester) so at most one quota row per period.
- * Cascades on delete of tenant or tahun_ajaran.
+ * AC#5: creating a permintaan_ai increments `terpakai`. Enforcement is ATOMIC
+ * and split across two layers (TOCTOU-safe under READ COMMITTED):
+ *   - REPO LAYER (atomic gate): `tambahPemakaianKuota` issues a conditional
+ *     UPDATE `SET terpakai = terpakai + 1 WHERE terpakai < batas RETURNING *`;
+ *     0 rows updated => quota exhausted, throws. The row-level lock taken by
+ *     the UPDATE serializes concurrent increments on the same row, so N
+ *     concurrent transactions cannot all pass the gate.
+ *   - DB BACKSTOP: `kuota_ai_terpakai_batas_check` (`terpakai <= batas`) makes
+ *     exceeding the ceiling physically impossible — even a buggy caller cannot
+ *     push `terpakai` past `batas` (the UPDATE would violate the CHECK).
+ *   - ACTION LAYER: an early `tersisa <= 0` read stays as a UX fast-path (cheap
+ *     reject before any state-machine work); the repo UPDATE is the source of
+ *     truth.
+ * `batas` defaults to 100. UNIQUE on (tenant, tahun_ajaran, semester) so at most
+ * one quota row per period. Cascades on delete of tenant or tahun_ajaran.
+ *
+ * NOTE: `kuota_ai_terpakai_batas_check` is applied to the real database by
+ * migration `0019_kuota_ai_terpakai_batas_check.sql` (clamps pre-existing
+ * offenders, then ADD CONSTRAINT). Drizzle-kit reads this declaration as the
+ * type mirror; the migration is the source of truth at runtime.
  */
 export const kuotaAi = pgTable(
   "kuota_ai",
@@ -1100,6 +1116,7 @@ export const kuotaAi = pgTable(
       "kuota_ai_semester_check",
       sql`${t.semester} in ('ganjil', 'genap')`
     ),
+    check("kuota_ai_terpakai_batas_check", sql`${t.terpakai} <= ${t.batas}`),
     unique("kuota_ai_tenant_ta_semester_unique").on(
       t.tenantId,
       t.tahunAjaranId,

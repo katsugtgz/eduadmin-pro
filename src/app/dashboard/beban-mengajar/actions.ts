@@ -214,6 +214,15 @@ export async function ubahBebanMengajarAction(
     );
   }
 
+  // AC#2 partial-XOR clearing: setting one branch MUST null the other, or the
+  // schema CHECK trips on a previously two-column row. Repo treats `null` as
+  // "write NULL" (only `undefined` is skipped).
+  if (input.rombonganBelajarId !== undefined) {
+    input.tingkatId = null;
+  } else if (input.tingkatId !== undefined) {
+    input.rombonganBelajarId = null;
+  }
+
   const { db } = getDb();
   await withTenant(db, akses.membership.orgId, async (tx) => {
     await ubahBebanMengajar(tx, id, input);

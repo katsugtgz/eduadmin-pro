@@ -8,6 +8,7 @@ import { createDb, withTenant, type Db, type Tx } from "../client";
 import { runMigrations } from "../migrate";
 import * as schema from "../schema";
 import { cleanupTestTenants } from "../test-cleanup";
+import { extractDrizzleSqlLeaves } from "../test-drizzle-walker";
 
 import {
   buatDrafAi,
@@ -364,3 +365,53 @@ describeOrSkip(
     });
   }
 );
+
+// 8. TOCTOU race guard (mock-based — no DB required, always runs). The
+//    conditional UPDATE WHERE `(id AND statusVerifikasi='menunggu')` makes a
+//    concurrent verification observable: when returning() yields 0 rows the
+//    function THROWS instead of silently returning undefined / overwriting.
+describe("verifikasiDrafAi TOCTOU race guard (queries/draf-ai.ts)", () => {
+  /** Minimal Tx stub returning controlled arrays (no DB touched). */
+  function makeMockTx(opts: {
+    readonly selectResult: readonly unknown[];
+    readonly updateResult: readonly unknown[];
+    readonly onUpdateWhere?: (cond: unknown) => void;
+  }): Tx {
+    return {
+      select: () => ({
+        from: () => ({ where: async () => [...opts.selectResult] }),
+      }),
+      update: () => ({
+        set: () => ({
+          where: (cond: unknown) => {
+            opts.onUpdateWhere?.(cond);
+            return { returning: async () => [...opts.updateResult] };
+          },
+        }),
+      }),
+    } as unknown as Tx;
+  }
+
+  it("throws when UPDATE matches 0 rows (row left 'menunggu' mid-call)", async () => {
+    const captured: unknown[] = [];
+    const mockTx = makeMockTx({
+      selectResult: [{ id: "race-1", statusVerifikasi: "menunggu" }],
+      updateResult: [],
+      onUpdateWhere: (cond) => {
+        captured.push(cond);
+      },
+    });
+
+    await expect(
+      verifikasiDrafAi(mockTx, "race-1", "disetujui", "u_race")
+    ).rejects.toThrow(/sudah diverifikasi/);
+    expect(captured).toHaveLength(1);
+    // Walking the Drizzle SQL tree exposes bound param values, so this guards
+    // against a regression that drops the status='menunggu' predicate (an
+    // id-only WHERE would still pass the empty-updateResult path but would
+    // NOT contain "menunggu" here).
+    const leaves = extractDrizzleSqlLeaves(captured[0]);
+    expect(leaves).toContain("menunggu");
+    expect(leaves).toContain("race-1");
+  });
+});
