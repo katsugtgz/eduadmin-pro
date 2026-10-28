@@ -41,7 +41,7 @@
   --muted-foreground: oklch(0.5 0.015 70);
 
   /* Accent — THE star: saturated terracotta */
-  --accent: oklch(0.68 0.16 42);
+  --accent: oklch(0.48 0.11 160);
   --accent-foreground: oklch(0.99 0.005 95);
 
   /* Semantic */
@@ -55,10 +55,10 @@
   /* Lines & inputs */
   --border: oklch(0.9 0.012 80);
   --input: oklch(0.9 0.012 80);
-  --ring: oklch(0.68 0.16 42);
+  --ring: oklch(0.48 0.11 160);
 
   /* Charts — earth-toned palette */
-  --chart-1: oklch(0.62 0.18 42); /* terracotta */
+  --chart-1: oklch(0.48 0.11 160); /* emerald */
   --chart-2: oklch(0.55 0.1 165); /* deep emerald */
   --chart-3: oklch(0.45 0.08 250); /* midnight */
   --chart-4: oklch(0.78 0.14 80); /* honey */
@@ -72,14 +72,20 @@
   --sidebar-accent: oklch(0.93 0.014 80);
   --sidebar-accent-foreground: oklch(0.22 0.015 60);
   --sidebar-border: oklch(0.9 0.012 80);
-  --sidebar-ring: oklch(0.68 0.16 42);
+  --sidebar-ring: oklch(0.48 0.11 160);
+
+  /* Papan tulis (chalkboard) hero tokens */
+  --papan: oklch(0.36 0.055 155);
+  --papan-foreground: oklch(0.95 0.012 100);
+  --kapur: oklch(0.93 0.018 95);
+  --papan-frame: oklch(0.52 0.07 55);
 
   /* Signature accent gradient — used sparingly */
   --gradient-warm: linear-gradient(
     135deg,
-    oklch(0.68 0.16 42) 0%,
-    oklch(0.62 0.2 30) 50%,
-    oklch(0.5 0.18 305) 100%
+    oklch(0.48 0.11 160) 0%,
+    oklch(0.45 0.09 190) 50%,
+    oklch(0.4 0.1 250) 100%
   );
 
   /* Subtle paper grain — applied via background-image */
@@ -105,7 +111,7 @@
   --muted: oklch(0.26 0.01 60);
   --muted-foreground: oklch(0.68 0.012 75);
 
-  --accent: oklch(0.72 0.16 42);
+  --accent: oklch(0.7 0.12 160);
   --accent-foreground: oklch(0.16 0.008 60);
 
   --destructive: oklch(0.7 0.19 22);
@@ -117,9 +123,9 @@
 
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.72 0.16 42);
+  --ring: oklch(0.7 0.12 160);
 
-  --chart-1: oklch(0.7 0.18 42);
+  --chart-1: oklch(0.65 0.12 160);
   --chart-2: oklch(0.65 0.12 165);
   --chart-3: oklch(0.6 0.1 250);
   --chart-4: oklch(0.8 0.14 80);
@@ -132,7 +138,7 @@
   --sidebar-accent: oklch(0.26 0.01 60);
   --sidebar-accent-foreground: oklch(0.96 0.005 85);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.72 0.16 42);
+  --sidebar-ring: oklch(0.7 0.12 160);
 }
 
 @theme inline {
@@ -159,6 +165,9 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-papan: var(--papan);
+  --color-papan-foreground: var(--papan-foreground);
+  --color-kapur: var(--kapur);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -196,12 +205,12 @@
     background-image:
       radial-gradient(
         circle at 0% 0%,
-        oklch(0.96 0.025 75 / 0.4) 0,
+        oklch(0.95 0.02 170 / 0.3) 0,
         transparent 35%
       ),
       radial-gradient(
         circle at 100% 0%,
-        oklch(0.94 0.04 50 / 0.3) 0,
+        oklch(0.94 0.03 200 / 0.22) 0,
         transparent 40%
       );
     background-attachment: fixed;
@@ -216,7 +225,7 @@
 
   /* Selection — terracotta highlight */
   ::selection {
-    background-color: oklch(0.68 0.16 42 / 0.25);
+    background-color: oklch(0.48 0.11 160 / 0.22);
     color: var(--foreground);
   }
 
@@ -229,7 +238,7 @@
     background: var(--muted);
   }
   ::-webkit-scrollbar-thumb {
-    background: oklch(0.7 0.02 70);
+    background: oklch(0.7 0.02 160);
     border-radius: 9999px;
     border: 2px solid var(--muted);
   }
@@ -506,6 +515,27 @@
     transition: none !important;
     animation: none !important;
   }
+}
+
+/* ============================================================
+   Papan tulis hero - chalkboard surface with wooden frame
+   ============================================================ */
+@utility papan-board {
+  background:
+    radial-gradient(120% 90% at 20% 0%, oklch(0.42 0.06 155 / 0.55), transparent 60%),
+    var(--papan);
+  color: var(--papan-foreground);
+  box-shadow:
+    inset 0 0 0 1px oklch(0.3 0.04 150 / 0.8),
+    inset 0 0 56px oklch(0.2 0.03 150 / 0.45),
+    0 1px 2px oklch(0.4 0.05 60 / 0.06),
+    0 4px 12px oklch(0.4 0.05 60 / 0.08);
+  border: 6px solid var(--papan-frame);
+}
+
+.dark .papan-board {
+  --papan: oklch(0.3 0.05 155);
+  --papan-frame: oklch(0.42 0.06 55);
 }
 
 /* ============================================================

@@ -1,135 +1,114 @@
 import Link from "next/link";
 import { useId } from "react";
-import { ArrowRight, Compass, Sparkles } from "lucide-react";
 
-import { PageReveal, TextStagger } from "@/components/motion";
-import { Button } from "@/components/ui/button";
-import { type StyleWithVars } from "@/lib/utils";
+import { PageReveal } from "@/components/motion";
 
-const HEADLINE_JUDUL: React.ReactNode = (
-  <>
-    EduAdmin Pro <span className="text-gradient-warm">Premium</span>
-    <span className="text-accent">.</span>
-  </>
-);
-
+/**
+ * KepalaBeranda — hero "papan tulis" (chalkboard).
+ * Papan hijau berbingkai kayu dengan tulisan kapur: ruang kelas Indonesia
+ * sebagai identitas produk administrasi sekolah.
+ */
 export function KepalaBeranda() {
+  const patternId = `papan-grid-${useId().replaceAll(":", "")}`;
+
   return (
     <PageReveal
       as="section"
-      className="bg-grain relative isolate overflow-hidden rounded-2xl border border-border/60 bg-card"
+      className="papan-board relative isolate overflow-hidden rounded-2xl"
     >
-      <BatikPattern className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.04]" />
-
-      <div
+      {/* Grid kapur samar di permukaan papan */}
+      <svg
+        className="pointer-events-none absolute inset-0 h-full w-full text-papan-foreground/[0.06]"
+        viewBox="0 0 400 300"
+        preserveAspectRatio="xMidYMid slice"
+        xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
-        className="hero-glow pointer-events-none absolute -right-28 -top-28 h-96 w-96 rounded-full opacity-40 blur-3xl"
-        style={{ "--glow-opacity": 0.42, "--glow-extent": "66%" } as StyleWithVars}
-      />
-
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute -top-4 right-2 select-none font-display text-[9rem] leading-none tracking-tighter text-foreground/[0.035] sm:text-[12rem] md:-top-6 md:right-6 md:text-[15rem]"
+        fill="none"
       >
-        01
-      </span>
+        <defs>
+          <pattern
+            id={patternId}
+            x="0"
+            y="0"
+            width="50"
+            height="50"
+            patternUnits="userSpaceOnUse"
+          >
+            <path d="M0 25 H50 M25 0 V50" stroke="currentColor" strokeWidth="0.6" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill={`url(#${patternId})`} />
+      </svg>
 
-      <div className="relative px-6 py-10 sm:px-10 sm:py-16 md:px-16 md:py-14">
-        <p className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-accent">
-          <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+      <div className="relative px-6 py-12 sm:px-12 sm:py-16">
+        <p className="font-mono text-sm text-papan-foreground/70">
           Selamat datang di
         </p>
 
-        <TextStagger
-          as="h1"
-          className="mt-5 font-display text-[2.5rem] leading-[0.95] tracking-tight text-foreground sm:mt-6 sm:text-7xl"
-          lines={HEADLINE_JUDUL}
-        />
+        <h1 className="mt-3 max-w-3xl font-display text-4xl leading-[1.02] tracking-tight text-papan-foreground sm:text-6xl">
+          EduAdmin Pro <span className="text-kapur">Premium</span>
+        </h1>
 
-        <p className="mt-6 max-w-2xl text-pretty text-base text-muted-foreground sm:mt-8 sm:text-xl">
+        {/* Garis kapur bawah judul */}
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 300 12"
+          preserveAspectRatio="none"
+          className="mt-4 block h-3 w-56 text-kapur sm:w-72"
+        >
+          <path
+            d="M2 8 C 40 2, 80 10, 120 6 S 200 2, 298 7"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3.5"
+            strokeLinecap="round"
+          />
+        </svg>
+
+        <p className="mt-6 max-w-prose text-pretty text-base text-papan-foreground/80 sm:text-lg">
           Satu produk untuk mengelola administrasi Satuan Pendidikan Anda:
           Peserta Didik, Nilai, E-Raport, Bank Soal, Perangkat Ajar, hingga
           Absensi QR.
         </p>
 
-        <div className="mt-8 flex flex-wrap items-center gap-3 sm:mt-10">
-          <Button asChild size="lg" className="group h-12 px-6 text-base">
-            <Link href="/dashboard">
-              Masuk ke Dashboard
-              <ArrowRight
-                aria-hidden="true"
-                className="transition-transform group-hover:translate-x-0.5"
-              />
-            </Link>
-          </Button>
-          <Button
-            asChild
-            size="lg"
-            variant="outline"
-            className="h-12 px-6 text-base"
+        <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
+          <Link
+            href="/dashboard"
+            className="rounded-lg border-2 border-papan-foreground/80 px-6 py-3 font-semibold text-papan-foreground transition-colors hover:bg-papan-foreground hover:text-papan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kapur focus-visible:ring-offset-2 focus-visible:ring-offset-papan"
           >
-            <Link href="/panduan">
-              <Compass aria-hidden="true" />
-              Tur Awal
-            </Link>
-          </Button>
+            Masuk ke Dashboard
+          </Link>
+          <Link
+            href="/panduan"
+            className="rounded-sm py-3 font-medium text-papan-foreground/90 underline decoration-papan-foreground/40 decoration-2 underline-offset-4 hover:decoration-papan-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kapur focus-visible:ring-offset-2 focus-visible:ring-offset-papan"
+          >
+            Tur Awal
+          </Link>
         </div>
 
-        <dl className="mt-6 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-border/60 bg-border/40 sm:mt-10">
+        <dl className="mt-10 flex flex-wrap gap-x-8 gap-y-2 font-mono text-sm">
           {[
-            { label: "Modul", value: "7" },
-            { label: "Bahasa", value: "Indonesia" },
-            { label: "Konteks", value: "Aktif" },
-          ].map((stat) => (
-            <div
-              key={stat.label}
-              className="min-w-0 bg-card/80 px-2 py-2 backdrop-blur-sm sm:px-6 sm:py-5"
-            >
-              <dt className="truncate text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground sm:text-xs sm:tracking-[0.18em]">
-                {stat.label}
-              </dt>
-              <dd className="mt-1 truncate font-display text-base text-foreground sm:text-3xl">
-                {stat.value}
-              </dd>
+            { k: "Modul", v: "7" },
+            { k: "Bahasa", v: "Indonesia" },
+            { k: "Konteks", v: "Aktif" },
+          ].map((s) => (
+            <div key={s.k} className="flex items-baseline gap-2">
+              <dt className="text-papan-foreground/60">{s.k}</dt>
+              <dd className="font-semibold text-papan-foreground">{s.v}</dd>
             </div>
           ))}
         </dl>
       </div>
+
+      {/* Rak kapur — dekoratif */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-8 bottom-0 hidden h-4 sm:block"
+      >
+        <span className="absolute bottom-1 right-24 block h-1 w-28 rounded-full bg-papan-foreground/20" />
+        <span className="absolute bottom-2 right-28 block h-1.5 w-8 -rotate-2 rounded-full bg-papan-foreground/80" />
+        <span className="absolute bottom-2 right-40 block h-1.5 w-10 rotate-1 rounded-full bg-kapur/90" />
+      </div>
     </PageReveal>
-  );
-}
-
-function BatikPattern({ className }: { className?: string }) {
-  const patternId = `batik-dots-${useId().replaceAll(":", "")}`;
-
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 200 200"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-      fill="none"
-    >
-      <defs>
-        <pattern
-          id={patternId}
-          x="0"
-          y="0"
-          width="40"
-          height="40"
-          patternUnits="userSpaceOnUse"
-        >
-          <circle cx="20" cy="20" r="1.5" fill="currentColor" />
-          <circle cx="0" cy="0" r="0.8" fill="currentColor" />
-          <circle cx="40" cy="40" r="0.8" fill="currentColor" />
-          <path
-            d="M20 8 L24 20 L20 32 L16 20 Z"
-            stroke="currentColor"
-            strokeWidth="0.5"
-          />
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill={`url(#${patternId})`} />
-    </svg>
   );
 }
